@@ -1,0 +1,341 @@
+
+## THIS HOLDS THE ADDRESS OF OUTPUT PLOTS AND FILES. Change the address according to where you want to store the output plots ##
+PLOTaddr <- "CURRENT_ANALYSIS/XRAY/M-estimator/TEST/"
+
+## CREATES THE FOLDERS WHERE RESULTS ARE KEPT ##
+if(!dir.exists('CURRENT_ANALYSIS')){dir.create('CURRENT_ANALYSIS')}
+if(!dir.exists('CURRENT_ANALYSIS/XRAY')){dir.create('CURRENT_ANALYSIS/XRAY')}
+if(!dir.exists('CURRENT_ANALYSIS/XRAY/M-estimator')){dir.create('CURRENT_ANALYSIS/XRAY/M-estimator')}
+if(!dir.exists('CURRENT_ANALYSIS/XRAY/M-estimator/TEST')){dir.create('CURRENT_ANALYSIS/XRAY/M-estimator/TEST')}
+
+
+require(ggplot2)
+require(GGally)
+require(MASS)
+#require(rbind)
+#require(cbind)
+require(abind)
+require(car)
+
+
+## Loading the raw data with errorbars. This data contains the GRBs with some missing variables, some of which are alreday assigned as NA. Other missing variables which are not assigned as NA, we will assign them as NA later in the code ##
+#GRBData_raw <- read.csv(file = "NEW-XRAY_DATA_RAW_w_errorbar_WITHOUT-M-estimator.csv", header = TRUE)
+
+run_locally = F
+if(run_locally){
+GRBData_raw <- read.csv(file = "NEW-XRAY_DATA_RAW_w_errorbar_WITHOUT-M-estimator.csv",
+                                        header=TRUE)
+wcutoff=0.65} else {
+  args <- commandArgs(trailingOnly = TRUE)
+  wcutoff <- as.numeric(args[2])
+  input_file <- args[1]
+  output_file <- args[3]
+  GRBData_raw <- read.csv(input_file, header = TRUE)
+}
+
+
+str(GRBData_raw)  # Reading the dataset as string
+dim(GRBData_raw)  # Reading the dimension (number of elements) of the dataset
+nrow(GRBData_raw) # Reading the number of rows in the dataset
+
+
+GRBData_raw_1 <- data.frame(matrix(ncol = 0, nrow = nrow(GRBData_raw)))
+GRBData_raw_1$GRB_Name <- GRBData_raw$X
+GRBData_raw_1$z <- GRBData_raw$Redshift_crosscheck
+GRBData_raw_1$log10T90 <- log10(GRBData_raw$T90)
+GRBData_raw_1$log10Fluence <- GRBData_raw$log10Fluence
+GRBData_raw_1$log10PeakFlux <- GRBData_raw$log10PeakFlux
+GRBData_raw_1$PhotonIndex <- GRBData_raw$PhotonIndex
+GRBData_raw_1$log10NH <- GRBData_raw$log10NH
+GRBData_raw_1$log10Fa <- GRBData_raw$log10Fa
+GRBData_raw_1$log10Ta <- GRBData_raw$log10Ta
+GRBData_raw_1$Alpha <- GRBData_raw$Alpha
+GRBData_raw_1$Beta <- GRBData_raw$Beta
+GRBData_raw_1$Gamma <- GRBData_raw$Gamma
+GRBData_raw_1$log10T90Err <- GRBData_raw$T90Err / (GRBData_raw$T90 * log(10))  ## Defining the T90 error in log values
+GRBData_raw_1$log10FluenceErr <- GRBData_raw$FluenceErr / ((10**GRBData_raw$log10Fluence) * log(10))  ## Defining the Fluence error in log values
+GRBData_raw_1$log10PeakFluxErr <- GRBData_raw$PeakFluxErr / ((10**GRBData_raw$log10PeakFlux) * log(10))  ## Defining the Fluence error in log values
+GRBData_raw_1$PhotonIndexErr <- GRBData_raw$PhotonIndexErr
+GRBData_raw_1$log10FaErr <- GRBData_raw$log10FaErr
+GRBData_raw_1$log10TaErr <- GRBData_raw$log10TaErr
+GRBData_raw_1$AlphaErr <- GRBData_raw$AlphaErr
+GRBData_raw_1$BetaErr <- GRBData_raw$BetaErr
+
+str(GRBData_raw_1)
+
+
+GRBData_raw_1$log10NH[GRBData_raw_1$log10NH < 20] <- NA
+GRBData_raw_1$PhotonIndex[GRBData_raw_1$PhotonIndex < 0] <- NA
+GRBData_raw_1$PhotonIndexErr[is.na(GRBData_raw_1$PhotonIndex)] <- NA
+GRBData_raw_1$PhotonIndexErr[GRBData_raw_1$PhotonIndexErr == 0] <- NA
+#GRBData_raw_1$log10PeakFlux[10**(GRBData_raw_1$log10PeakFlux) == 0] <- NA
+#GRBData_raw_1$log10PeakFluxErr[10**(GRBData_raw_1$log10PeakFlux) == 0] <- NA
+GRBData_raw_1$log10PeakFluxErr[GRBData_raw_1$log10PeakFluxErr == 0] <- NA
+GRBData_raw_1$log10FluenceErr[GRBData_raw_1$log10FluenceErr == 0] <- NA
+GRBData_raw_1$Alpha[GRBData_raw_1$Alpha > 3] <- NA
+GRBData_raw_1$AlphaErr[is.na(GRBData_raw_1$Alpha)] <- NA
+GRBData_raw_1$AlphaErr[GRBData_raw_1$AlphaErr == 0] <- NA
+GRBData_raw_1$Beta[GRBData_raw_1$Beta > 3] <- NA
+GRBData_raw_1$BetaErr[is.na(GRBData_raw_1$Beta)] <- NA
+GRBData_raw_1$BetaErr[GRBData_raw_1$BetaErr == 0] <- NA
+GRBData_raw_1$Gamma[GRBData_raw_1$Gamma > 3] <- NA
+
+
+## Assigning new variable to call the data ##
+GRBData_raw_2 <- GRBData_raw_1
+
+## Adding log10(z+1) as extra variable because we require this variable in the formula which we will use to remove the outliers using the M-estimator ##
+GRBData_raw_2$log10z <- log10(GRBData_raw_2$z+1)
+GRBData_raw_3 <- na.omit(GRBData_raw_2)
+str(GRBData_raw_3)
+
+
+GRBData1 <- GRBData_raw_3
+#GRBData1 <- na.omit(GRBData1)  # Omit NA values from the data
+str(GRBData1)
+dim(GRBData1)
+nrow(GRBData1)
+
+GRBData1$log10T90_error_bar <- ifelse(GRBData1$log10T90Err / GRBData1$log10T90 < 1, 0, 1)  # 0 if TRUE, 1 if FALSE
+GRBData1$log10Fluence_error_bar <- ifelse(GRBData1$log10FluenceErr / GRBData1$log10Fluence < 1, 0, 1)
+GRBData1$log10PeakFlux_error_bar <- ifelse(GRBData1$log10PeakFluxErr / GRBData1$log10PeakFlux < 1, 0, 1)
+GRBData1$log10PhotonIndex_error_bar <- ifelse(GRBData1$PhotonIndexErr / GRBData1$PhotonIndex < 1, 0, 1)
+GRBData1$log10Fa_error_bar <- ifelse(GRBData1$log10FaErr / GRBData1$log10Fa < 1, 0, 1)
+GRBData1$log10Ta_error_bar <- ifelse(GRBData1$log10TaErr / GRBData1$log10Ta < 1, 0, 1)
+GRBData1$Alpha_error_bar <- ifelse(GRBData1$AlphaErr / GRBData1$Alpha < 1, 0, 1)
+GRBData1$Beta_error_bar <- ifelse(GRBData1$BetaErr / GRBData1$Beta < 1, 0, 1)
+
+print(GRBData1$log10T90_error_bar)
+print(GRBData1$log10Fluence_error_bar)
+print(GRBData1$log10PeakFlux_error_bar)
+print(GRBData1$log10PhotonIndex_error_bar)
+print(GRBData1$log10Fa_error_bar)
+print(GRBData1$log10Ta_error_bar)
+print(GRBData1$Alpha_error_bar)
+print(GRBData1$Beta_error_bar)
+
+
+print("Conditions:")
+
+print(paste("Initial:","GRBData1:", nrow(GRBData1)))
+
+## Pairs Outliers, discarding the data points with error bar > 1 and taking only the data points with error bar < 1 ##
+GRBData2 <- GRBData1[GRBData1$log10T90_error_bar == 0,] # 0 is error bar < 1, 1 is error bar > 1
+GRBData3 <- GRBData2[GRBData2$log10Fluence_error_bar == 0,]
+GRBData4 <- GRBData3[GRBData3$log10PeakFlux_error_bar == 0,]
+GRBData5 <- GRBData4[GRBData4$log10PhotonIndex_error_bar == 0,]
+GRBData6 <- GRBData5[GRBData5$log10Fa_error_bar == 0,]
+GRBData7 <- GRBData6[GRBData6$log10Ta_error_bar == 0,]
+GRBData8 <- GRBData7[GRBData7$Alpha_error_bar == 0,]
+GRBData9 <- GRBData8[GRBData8$Beta_error_bar == 0,]
+
+print(paste("After removing pairs outliers", "GRBData2:", nrow(GRBData2), " |", "GRBData3:", nrow(GRBData3), " |", "GRBData4:", nrow(GRBData4), " |", "GRBData5:", nrow(GRBData5), " |", "GRBData6:", nrow(GRBData6), " |", "GRBData7:", nrow(GRBData7), " |", "GRBData8:", nrow(GRBData8), " |", "GRBData9:", nrow(GRBData9)))
+
+
+GRBData10 <- GRBData9[,-c(22:29)]
+str(GRBData10)
+dim(GRBData10)
+nrow(GRBData10)
+
+
+sz = 200  # Defining the size of the plots
+
+#fit_formula <- log10z ~ ((log10Ta)^2 + log10Fa + PhotonIndex + log10PeakFlux)^2 + log10NH + log10Ta + Gamma + log10T90 + (log10PeakFlux)^2 + (log10NH)^2 + (PhotonIndex)^2 + (Gamma)^2 + (log10Fa)^2 + (log10T90)^2  # The formula that we use in M-estimator to remove the outliers
+
+fit_formula <- log10z ~ (log10Ta + log10Fa)^2 + log10PeakFlux + log10NH + PhotonIndex + log10T90 + Alpha + (log10PeakFlux)^2 + (log10NH)^2 + (PhotonIndex)^2 + (log10Fa)^2 + (log10Ta)^2 + (log10T90)^2 + (Alpha)^2  # The formula that we use in M-estimator to remove the outliers
+
+M_est <- MASS::rlm(fit_formula, data = GRBData1, method = "M")
+summary(M_est)  # This gives the summary of the M-estimator results
+
+residuals <- M_est$residuals   # residuals from the fitting done by M-estimator
+fitted_values <- M_est$fitted.values   # fitted values obtained from the M-estimator
+weights <- M_est$w  # weights assigned by M-estimator to each GRB
+#plot(M_est$wresid, M_est$residuals)
+#print(weights)
+
+#barplot(height = weights[weights < 0.65], names.arg = GRBData10$GRB_Name[weights < 0.65], horiz = T, las = 1)
+
+## Plotting the histogram of weights assigned by M-estimator to each GRB ##
+png(filename = paste(PLOTaddr,'M-estimator_weights.png'),width = 23*sz,height = 20*sz, pointsize = 100)  # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist_weights <- hist(weights, breaks = 1+length(unique(round(weights, 1))))
+abline(v = wcutoff, col = "red", lwd = 30)
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+
+
+# Plotting the actual vs fitted values
+png(filename = paste(PLOTaddr, 'M-estimator_fitting_plot.png'), width = 23 * sz, height = 20 * sz, pointsize = 100)
+par(lwd = 20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+plot(GRBData1$log10z, fitted_values, xlab = "Actual log(1 + z)", ylab = "Fitted log(1 + z)", pch = 16, cex = 2, col = "blue")
+abline(0, 1, col = "red", lwd = 30)  # Line y = x for reference
+axis(1, lwd = 20, lwd.ticks = 20, col.axis = 'black', font = 2)
+axis(2, lwd = 20, lwd.ticks = 20, col.axis = 'black', font = 2)
+
+
+# Plotting the residuals versus fitted values
+png(filename = paste(PLOTaddr, 'M-estimator_residuals_plot.png'), width = 23 * sz, height = 20 * sz, pointsize = 100)
+par(lwd = 20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+plot(fitted_values, residuals, xlab = "Fitted Values", ylab = "Residuals", pch = 16, cex = 2, col = "blue")
+abline(h = 0, col = "red", lwd = 30)
+axis(1, lwd = 20, lwd.ticks = 20, col.axis = 'black', font = 2)
+axis(2, lwd = 20, lwd.ticks = 20, col.axis = 'black', font = 2)
+
+dev.off()  # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+
+
+# Calculate VIFs for the M-estimator model
+GVIF_values <- vif(M_est, "predictor")
+#VIF_values <- vif(M_est)
+
+# Print the VIF values
+print(GVIF_values)
+
+VIF_values <- (GVIF_values$`GVIF^(1/(2*Df))`)^2
+print(VIF_values)
+
+# Define the file paths
+VIF_values_file_path <- paste0(PLOTaddr, "VIF_values.csv")
+# Save the LASSO selected variables to text files in the defined location
+write.csv(VIF_values, VIF_values_file_path, sep='')
+
+
+outliers <- GRBData1$GRB_Name[weights < wcutoff] # this cut-off can be changed accordingly
+print(outliers)
+
+# Define the file paths
+outliers_file_path <- paste0(PLOTaddr, "outliers.csv")
+# Save the LASSO selected variables to text files in the defined location
+#writeLines(outliers, outliers_file_path)
+write.csv(outliers, outliers_file_path, row.names = FALSE)
+
+
+GRBData_raw_4 <- GRBData10[!(GRBData10$GRB_Name %in% c(outliers)), ]
+str(GRBData_raw_4)
+
+
+GRBData_raw_5 <- GRBData10[(GRBData10$GRB_Name %in% c(outliers)), ]
+str(GRBData_raw_5)
+
+
+filename = paste(PLOTaddr, 'NEW-XRAY_DATA_useable_w_errorbar_after_M-estimator_ON_RAW.csv', sep='')
+#write.csv(GRBData_raw_4, filename, append = FALSE, row.names = FALSE, col.names = TRUE)
+write.csv(GRBData_raw_4, filename, row.names = FALSE)
+
+
+## Removing the columns which are not required for the scatter plot from both##
+GRBData_raw_6 <- GRBData_raw_4[,-c(1,13:20,22:29)]
+str(GRBData_raw_6)
+GRBData_raw_7 <- GRBData_raw_5[,-c(1,13:20,22:29)]
+str(GRBData_raw_7)
+
+
+## Reading the variable names ##
+cols <- colnames(GRBData_raw_6)
+#print(cols)
+
+## Plotting starts ##
+sz = 200  # Defining the size of the plots
+group <- NA
+group[rownames(GRBData_raw_6)] <- 1
+group[rownames(GRBData_raw_7)] <- 2
+
+Totdata = rbind(GRBData_raw_6[,intersect(colnames(GRBData_raw_6),colnames(GRBData_raw_7))]
+                ,GRBData_raw_7[,intersect(colnames(GRBData_raw_6),colnames(GRBData_raw_7))])
+
+png(paste0(PLOTaddr,"Scatterplot_w_color.png"),width = 20*sz,height = 20*sz,res=130, pointsize=68) # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+pairs(Totdata[,cols],
+      #pairs(as.matrix(Totdata[,c(4,6:16)]),
+      #pairs(as.matrix(fullDatMat_WO[,c('InvRedshift','Frac_Variability','Gaia_G_Magnitude')]),
+      horOdd = T ,
+      pch=19,
+      col=c('black','red')[group],
+      cex=0.3,
+      cex.labels=0.4,
+      #cex.angle=45,
+      main=paste('Scatter Plot of',dim(Totdata)[1],' samples')
+      #lower.panel = as.matrix(lowredshift[,3:6])
+      )
+dev.off() # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+
+
+## Plotting starts ##
+#cols <- colnames(GRBData_raw_6)
+#sz = 200  # Defining the size of the plots
+
+group_1<-NA
+group_1[rownames(GRBData_raw_6)] = 'Non-Outlier GRBs'
+group_1[rownames(GRBData_raw_7)] = 'Outlier GRBs'
+
+#Totdata = rbind(GRBData_raw_6[,intersect(colnames(GRBData_raw_6),colnames(GRBData_raw_7))]
+#                ,GRBData_raw_7[,intersect(colnames(GRBData_raw_6),colnames(GRBData_raw_7))])
+
+group_1 = group_1[rownames(Totdata)]
+
+
+## Calculate correlations
+#calculate_correlations <- function(data, group, cols) {
+#  cor_matrix <- matrix(NA, nrow = length(cols), ncol = length(cols))
+#  rownames(cor_matrix) <- colnames(cor_matrix) <- cols
+#  
+#  for (i in 1:length(cols)) {
+#    for (j in 1:length(cols)) {
+#      if (i != j) {
+#        # Subset data
+#        subset_non_outliers <- data[group == 'Non-Outlier GRBs', c(cols[i], cols[j]), drop = FALSE]
+#        subset_outliers <- data[group == 'Outlier GRBs', c(cols[i], cols[j]), drop = FALSE]
+#        
+#        # Calculate correlations
+#        cor_non_outliers <- if (nrow(subset_non_outliers) > 1) cor(subset_non_outliers[[1]], #subset_non_outliers[[2]], use = "complete.obs") else NA
+#        cor_outliers <- if (nrow(subset_outliers) > 1) cor(subset_outliers[[1]], subset_outliers[[2]], use = #"complete.obs") else NA
+#        
+#        # Store results
+#        cor_matrix[i, j] <- cor_non_outliers
+#        cor_matrix[j, i] <- cor_outliers
+#      }
+#    }
+#  }
+#  return(cor_matrix)
+#}
+
+## Calculate correlations for the dataset
+#cor_matrix <- calculate_correlations(Totdata, group_1, cols)
+
+
+
+#png(paste0(PLOTaddr,"Scatterplot_w_color_w_distribution.png"),width = 20*sz,height = 20*sz,res=130)
+plot <- ggpairs(Totdata,
+        columns = cols,
+        aes(color=factor(group_1)),
+        axisLabels = c("show"),
+        columnLabels = cols,
+        upper=list(continuous=GGally::wrap("cor", method="pearson", stars=FALSE, size=1.3,col='blue')),
+        #upper = list(continuous = wrap(custom_cor)),
+        lower = list(continuous = wrap("points", size = 0.5)),
+        #title = paste('Scatter Matrix Plot of',dim(Totdata)[1],' samples'),
+        diag = list(continuous = wrap("barDiag", bins=10, fill='red', col='black')),) +theme_bw()+theme(panel.background = element_rect(colour = 'white'), 
+                                                                                                        panel.grid = element_blank(), axis.text = element_text(colour = 'black'), 
+                                                                                                        strip.text=ggplot2::element_text(size=5,face="bold")
+)
+
+## Modify axis text size ##
+plot <- plot + theme(axis.text.x = element_text(size = 4),
+                     axis.text.y = element_text(size = 4))
+
+## Annotate correlation values manually
+#for (i in seq_along(plot$plots)) {
+#  plot$plots[[i]] <- plot$plots[[i]] +
+#    annotate("text", x = 0.5, y = 0.5, 
+#             label = paste0("Non-Outliers: ", 
+#                            formatC(cor_values[[i]]$non_outliers, format = "f", digits = 2), 
+#                            "\nOutliers: ", 
+#                            formatC(cor_values[[i]]$outliers, format = "f", digits = 2)), 
+#             size = 3, color = "blue", hjust = 0.5, vjust = 0.5)
+#}
+
+
+#show(plot)
+ggsave(paste0(PLOTaddr,"Scatterplot_w_color_w_distribution.png"), plot, width = 10, height = 10, dpi = 300, limitsize = FALSE)
+#dev.off()

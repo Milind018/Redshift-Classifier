@@ -1,0 +1,1016 @@
+
+## THIS HOLDS THE ADDRESS OF OUTPUT PLOTS AND FILES. Change the address according to where you want to store the output plots ##
+PLOTaddr <- "CURRENT_ANALYSIS/XRAY/MICE/TEST/"
+
+## CREATES THE FOLDERS WHERE RESULTS ARE KEPT ##
+if(!dir.exists('CURRENT_ANALYSIS')){dir.create('CURRENT_ANALYSIS')}
+if(!dir.exists('CURRENT_ANALYSIS/XRAY')){dir.create('CURRENT_ANALYSIS/XRAY')}
+if(!dir.exists('CURRENT_ANALYSIS/XRAY/MICE')){dir.create('CURRENT_ANALYSIS/XRAY/MICE')}
+if(!dir.exists('CURRENT_ANALYSIS/XRAY/MICE/TEST')){dir.create('CURRENT_ANALYSIS/XRAY/MICE/TEST')}
+
+
+require(ggplot2)
+require(GGally)
+require(mice)
+#require(rbind)
+#require(cbind)
+require(abind)
+
+
+## Loading the raw data with errorbars. This data contains the GRBs with some missing variables, some of which are alreday assigned as NA. Other missing variables which are not assigned as NA, we will assign them as NA later in the code ##
+run_locally = F
+if(run_locally){
+GRBData_raw <- read.csv(file = "NEW-XRAY_DATA_RAW_w_errorbar_WITHOUT-M-estimator.csv",
+                                        header=TRUE)
+wcutoff=0.65} else {
+  args <- commandArgs(trailingOnly = TRUE)
+  wcutoff <- as.numeric(args[2])
+  input_file <- args[1]
+  output_file <- args[3]
+  GRBData_raw <- read.csv(input_file, header = TRUE)
+}
+
+
+## Excluding the GRBs that are outliers in the RAW Data
+outlier_GRBs <- read.csv(file = "CURRENT_ANALYSIS/XRAY/M-estimator/TEST/outliers.csv", header = TRUE)    # Reading the outliers GRB
+outlier_names <- outlier_GRBs[[1]]  # Extract the column as a vector
+
+GRBData_raw_outlier_removed <- GRBData_raw[!(GRBData_raw$X %in% outlier_names), ]
+#GRBData_raw_4 <- GRBData10[!(GRBData10$GRB_Name %in% c(outliers)), ]
+
+str(GRBData_raw_outlier_removed)  # Reading the dataset as string
+dim(GRBData_raw_outlier_removed)  # Reading the dimension (number of elements) of the dataset
+nrow(GRBData_raw_outlier_removed) # Reading the number of rows in the dataset
+
+
+## Removing the columns which are not required ##
+GRBData_raw_1 <- GRBData_raw_outlier_removed[,-c(1)]
+str(GRBData_raw_1)
+
+
+GRBData_raw_2 <- data.frame(matrix(ncol = 0, nrow = nrow(GRBData_raw_1)))
+GRBData_raw_2$z <- GRBData_raw_1$Redshift_crosscheck
+GRBData_raw_2$log10T90 <- log10(GRBData_raw_1$T90)
+GRBData_raw_2$log10Fluence <- GRBData_raw_1$log10Fluence
+GRBData_raw_2$log10PeakFlux <- GRBData_raw_1$log10PeakFlux
+GRBData_raw_2$PhotonIndex <- GRBData_raw_1$PhotonIndex
+GRBData_raw_2$log10NH <- GRBData_raw_1$log10NH
+GRBData_raw_2$log10Fa <- GRBData_raw_1$log10Fa
+GRBData_raw_2$log10Ta <- GRBData_raw_1$log10Ta
+GRBData_raw_2$Alpha <- GRBData_raw_1$Alpha
+GRBData_raw_2$Beta <- GRBData_raw_1$Beta
+GRBData_raw_2$Gamma <- GRBData_raw_1$Gamma
+GRBData_raw_2$log10T90Err <- GRBData_raw_1$T90Err / (GRBData_raw_1$T90 * log(10))  ## Defining the T90 error in log values
+GRBData_raw_2$log10FluenceErr <- GRBData_raw_1$FluenceErr / ((10**GRBData_raw_1$log10Fluence) * log(10))  ## Defining the Fluence error in log values
+GRBData_raw_2$log10PeakFluxErr <- GRBData_raw_1$PeakFluxErr / ((10**GRBData_raw_1$log10PeakFlux) * log(10))  ## Defining the PeakFlux error in log values
+GRBData_raw_2$PhotonIndexErr <- GRBData_raw_1$PhotonIndexErr
+GRBData_raw_2$log10FaErr <- GRBData_raw_1$log10FaErr
+GRBData_raw_2$log10TaErr <- GRBData_raw_1$log10TaErr
+GRBData_raw_2$AlphaErr <- GRBData_raw_1$AlphaErr
+GRBData_raw_2$BetaErr <- GRBData_raw_1$BetaErr
+
+str(GRBData_raw_2)
+
+
+GRBData_raw_2$log10NH[GRBData_raw_2$log10NH < 20] <- NA
+GRBData_raw_2$PhotonIndex[GRBData_raw_2$PhotonIndex < 0] <- NA
+GRBData_raw_2$PhotonIndexErr[is.na(GRBData_raw_2$PhotonIndex)] <- NA
+GRBData_raw_2$PhotonIndexErr[GRBData_raw_2$PhotonIndexErr == 0] <- NA
+#GRBData_raw_2$log10PeakFlux[10**(GRBData_raw_2$log10PeakFlux) == 0] <- NA
+#GRBData_raw_2$log10PeakFluxErr[10**(GRBData_raw_2$log10PeakFlux) == 0] <- NA
+GRBData_raw_2$log10PeakFluxErr[GRBData_raw_2$log10PeakFluxErr == 0] <- NA
+GRBData_raw_2$log10FluenceErr[GRBData_raw_2$log10FluenceErr == 0] <- NA
+GRBData_raw_2$Alpha[GRBData_raw_2$Alpha > 3] <- NA
+GRBData_raw_2$AlphaErr[is.na(GRBData_raw_2$Alpha)] <- NA
+GRBData_raw_2$AlphaErr[GRBData_raw_2$AlphaErr == 0] <- NA
+GRBData_raw_2$Beta[GRBData_raw_2$Beta > 3] <- NA
+GRBData_raw_2$BetaErr[is.na(GRBData_raw_2$Beta)] <- NA
+GRBData_raw_2$BetaErr[GRBData_raw_2$BetaErr == 0] <- NA
+GRBData_raw_2$Gamma[GRBData_raw_2$Gamma > 3] <- NA
+
+
+#GRBData_raw_3_wo_NA <- na.omit(GRBData_raw_2)  # Omit NA values from the data
+GRBData_raw_3 <- na.omit(GRBData_raw_2)
+
+## Adding log10(z+1) as extra variable ##
+GRBData_raw_3$log10z <- log10(GRBData_raw_3$z+1)
+str(GRBData_raw_3)
+#str(GRBData_raw_3_wo_NA)
+
+
+## Set up the graphical parameters for bold text and lines
+par(font.axis=2, font.lab=2, cex.axis=1.5, cex.lab=1.5, lwd=2)
+
+sz = 200
+png(paste0(PLOTaddr,"MICE_box.png"),width = 20*sz,height = 20*sz,res=150, pointsize=68) # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+PATTERN <- md.pattern(GRBData_raw_2,rotate.names = T)
+dev.off() # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+PATTERN
+
+
+mice_model <- mice(data = GRBData_raw_2 ,m = 20 ,method = 'midastouch' ,printFlag = F)  # We use midastouch method for the imputation
+imputations <-complete(mice_model, 20)
+str(imputations)
+
+
+imputations_1 <- cbind(GRBData_raw_outlier_removed$X, imputations)
+head(imputations_1)
+str(imputations_1)
+
+
+imputations_2 <- data.frame(matrix(ncol = 0, nrow = nrow(imputations_1)))
+imputations_2$GRB_Name <- imputations_1$`GRBData_raw_outlier_removed$X`
+imputations_2$z <- imputations_1$z
+imputations_2$log10T90 <- imputations_1$log10T90
+imputations_2$log10Fluence <- imputations_1$log10Fluence
+imputations_2$log10PeakFlux <- imputations_1$log10PeakFlux
+imputations_2$PhotonIndex <- imputations_1$PhotonIndex
+imputations_2$log10NH <- imputations_1$log10NH
+imputations_2$log10Fa <-imputations_1$log10Fa
+imputations_2$log10Ta <- imputations_1$log10Ta
+imputations_2$Alpha <- imputations_1$Alpha
+imputations_2$Beta <- imputations_1$Beta
+imputations_2$Gamma <- imputations_1$Gamma
+imputations_2$log10T90Err <- imputations_1$log10T90Err
+imputations_2$log10FluenceErr <- imputations_1$log10FluenceErr
+imputations_2$log10PeakFluxErr <- imputations_1$log10PeakFluxErr
+imputations_2$PhotonIndexErr <- imputations_1$PhotonIndexErr
+imputations_2$log10FaErr <- imputations_1$log10FaErr
+imputations_2$log10TaErr <- imputations_1$log10TaErr
+imputations_2$AlphaErr <- imputations_1$AlphaErr
+imputations_2$BetaErr <- imputations_1$BetaErr
+
+
+str(imputations_2)
+
+
+GRBData1 <- imputations_2
+#GRBData1 <- na.omit(GRBData1)  # Omit NA values from the data
+str(GRBData1)
+dim(GRBData1)
+nrow(GRBData1)
+
+GRBData1$log10T90_error_bar <- ifelse(GRBData1$log10T90Err / GRBData1$log10T90 < 1, 0, 1)  # 0 if TRUE, 1 if FALSE
+GRBData1$log10Fluence_error_bar <- ifelse(GRBData1$log10FluenceErr / GRBData1$log10Fluence < 1, 0, 1)
+GRBData1$log10PeakFlux_error_bar <- ifelse(GRBData1$log10PeakFluxErr / GRBData1$log10PeakFlux < 1, 0, 1)
+GRBData1$log10PhotonIndex_error_bar <- ifelse(GRBData1$PhotonIndexErr / GRBData1$PhotonIndex < 1, 0, 1)
+GRBData1$log10Fa_error_bar <- ifelse(GRBData1$log10FaErr / GRBData1$log10Fa < 1, 0, 1)
+GRBData1$log10Ta_error_bar <- ifelse(GRBData1$log10TaErr / GRBData1$log10Ta < 1, 0, 1)
+GRBData1$Alpha_error_bar <- ifelse(GRBData1$AlphaErr / GRBData1$Alpha < 1, 0, 1)
+GRBData1$Beta_error_bar <- ifelse(GRBData1$BetaErr / GRBData1$Beta < 1, 0, 1)
+
+print(GRBData1$log10T90_error_bar)
+print(GRBData1$log10Fluence_error_bar)
+print(GRBData1$log10PeakFlux_error_bar)
+print(GRBData1$log10PhotonIndex_error_bar)
+print(GRBData1$log10Fa_error_bar)
+print(GRBData1$log10Ta_error_bar)
+print(GRBData1$Alpha_error_bar)
+print(GRBData1$Beta_error_bar)
+
+
+print("Conditions:")
+
+print(paste("Initial:","GRBData1:", nrow(GRBData1)))
+
+## Pairs Outliers, discarding the data points with error bar > 1 and taking only the data points with error bar < 1 ##
+GRBData2 <- GRBData1[GRBData1$log10T90_error_bar == 0,] # 0 is error bar < 1, 1 is error bar > 1
+GRBData3 <- GRBData2[GRBData2$log10Fluence_error_bar == 0,]
+GRBData4 <- GRBData3[GRBData3$log10PeakFlux_error_bar == 0,]
+GRBData5 <- GRBData4[GRBData4$log10PhotonIndex_error_bar == 0,]
+GRBData6 <- GRBData5[GRBData5$log10Fa_error_bar == 0,]
+GRBData7 <- GRBData6[GRBData6$log10Ta_error_bar == 0,]
+GRBData8 <- GRBData7[GRBData7$Alpha_error_bar == 0,]
+GRBData9 <- GRBData8[GRBData8$Beta_error_bar == 0,]
+
+print(paste("After removing pairs outliers", "GRBData2:", nrow(GRBData2), " |", "GRBData3:", nrow(GRBData3), " |", "GRBData4:", nrow(GRBData4), " |", "GRBData5:", nrow(GRBData5), " |", "GRBData6:", nrow(GRBData6), " |", "GRBData7:", nrow(GRBData7), " |", "GRBData8:", nrow(GRBData8), " |", "GRBData9:", nrow(GRBData9)))
+
+
+GRBData10 <- GRBData9[,-c(21:29)]
+str(GRBData10)
+dim(GRBData10)
+nrow(GRBData10)
+
+
+filename = paste(PLOTaddr, 'NEW-XRAY_DATA_with_errorbar_after_MICE_ON_RAW_with_M-estimator.csv', sep = "")
+#write.csv(imputations_2, filename, append = FALSE, row.names = FALSE, col.names = TRUE)
+#write.csv(imputations_2, filename, row.names = FALSE)
+write.csv(GRBData10, filename, row.names = FALSE)
+
+
+#diff_row_names <- setdiff(rownames(imputations), rownames(GRBData_raw_3))
+diff_row_names <- setdiff(rownames(GRBData10), rownames(GRBData_raw_3))
+diff_row_names
+
+## Convert row names to indices
+diff_row_indices <- which(rownames(GRBData10) %in% diff_row_names)
+
+
+
+## Removing the columns which are not required ##
+#imputations_3 <- imputations_2[,-c(1,13:20)]
+imputations_3 <- GRBData10[,-c(1,13:20)]
+
+## Adding log10(z+1) as extra variable ##
+imputations_3$log10z <- log10(imputations_3$z+1)
+#str(imputations_3)
+
+## Segregating the non-imputed and the imputed data from the MIC-imputed data after the data point remove using the error bars
+GRBData_raw_4 <- GRBData10[-diff_row_indices, ]
+
+
+## Reading the variable names ##
+cols <- colnames(imputations_3)
+#print(cols)
+
+## Plotting starts ##
+sz = 200  # Defining the size of the plots
+group=NA
+group[rownames(GRBData_raw_4)] = 1
+group[diff_row_indices] = 2
+
+png(paste0(PLOTaddr,"Scatterplot_w_color_MICE.png"),width = 20*sz,height = 20*sz,res=130, pointsize=68)# this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+#png(paste0(PLOTaddr,"Scatterplot_w_color.png"))
+pairs(imputations_3[,cols],
+      #pairs(as.matrix(Totdata[,c(4,6:16)]),
+      #pairs(as.matrix(fullDatMat_WO[,c('InvRedshift','Frac_Variability','Gaia_G_Magnitude')]),
+      horOdd = T ,
+      pch=19,
+      col=c('black','red')[group],
+      cex=0.3,
+      cex.labels=0.4,
+      #cex.angle=45,
+      main=paste('Scatter Plot of',dim(imputations_3)[1],' samples')
+      #lower.panel = as.matrix(lowredshift[,3:6])
+      )
+dev.off() # this saves the plot directly into the designated folder, comment this out if you want to see the plot here first
+
+
+## Plotting starts ##
+## Removing the columns which are not required ##
+#imputations_3 <- imputations_2[,-c(1,13:20)]
+## Adding log10(z+1) as extra variable ##
+#imputations_3$log10z <- log10(imputations_3$z+1)
+#str(imputations_3)
+
+## Reading the variable names ##
+#cols <- colnames(imputations_3)
+#print(cols)
+#sz = 200  # Defining the size of the plots
+
+group_1<-NA
+group_1[rownames(GRBData_raw_4)] = 'Non-MICE GRBs'
+group_1[diff_row_indices] = 'MICE GRBs'
+
+group_1 = group_1[rownames(imputations_3)]
+
+#png(paste0(PLOTaddr,"Scatterplot_w_color_w_distribution.png"),width = 20*sz,height = 20*sz,res=130)
+plot <- ggpairs(imputations_3, 
+        columns = cols, 
+        aes(color=factor(group_1)), 
+        axisLabels = c("show"), 
+        columnLabels = cols, 
+        upper=list(continuous=GGally::wrap("cor", method="pearson", stars=FALSE, size=1.3,col='blue')), 
+        lower = list(continuous = wrap("points", size = 0.5)), 
+        #title = paste('Scatter Matrix Plot of',dim(imputations_3)[1],' samples'), 
+        diag = list(continuous = wrap("barDiag", bins=10, fill='red', col='black')),) +theme_bw()+theme(panel.background = element_rect(colour = 'white'), panel.grid = element_blank(), axis.text = element_text(colour = 'black'), strip.text=ggplot2::element_text(size=5,face="bold")
+)
+
+## Modify axis text size ##
+plot <- plot + theme(axis.text.x = element_text(size = 4),
+                     axis.text.y = element_text(size = 4))
+
+ggsave(paste0(PLOTaddr,"Scatterplot_w_color_w_distribution_MICE.png"), plot, width = 10, height = 10, dpi = 300, limitsize = FALSE)
+#dev.off()
+
+
+## Perform the KS test ##
+#KS_Gamma <- ks.test(GRBData_raw_3$Gamma, imputations_2$Gamma)
+KS_Gamma <- ks.test(GRBData_raw_4$Gamma, GRBData10$Gamma)
+
+## Print the test result ##
+print(KS_Gamma)
+
+KS_log10T90Err <- ks.test(GRBData_raw_4$log10T90Err, GRBData10$log10T90Err)
+print(KS_log10T90Err)
+
+KS_PhotonIndex <- ks.test(GRBData_raw_4$PhotonIndex, GRBData10$PhotonIndex)
+print(KS_PhotonIndex)
+
+KS_Beta <- ks.test(GRBData_raw_4$Beta, GRBData10$Beta)
+print(KS_Beta)
+
+KS_PhotonIndexErr <- ks.test(GRBData_raw_4$PhotonIndexErr, GRBData10$PhotonIndexErr)
+print(KS_PhotonIndexErr)
+
+KS_log10PeakFlux <- ks.test(GRBData_raw_4$log10PeakFlux, GRBData10$log10PeakFlux)
+print(KS_log10PeakFlux)
+
+KS_Alpha <- ks.test(GRBData_raw_4$Alpha, GRBData10$Alpha)
+print(KS_Alpha)
+
+KS_AlphaErr <- ks.test(GRBData_raw_4$AlphaErr, GRBData10$AlphaErr)
+print(KS_AlphaErr)
+
+KS_log10PeakFluxErr <- ks.test(GRBData_raw_4$log10PeakFluxErr, GRBData10$log10PeakFluxErr)
+print(KS_log10PeakFluxErr)
+
+KS_log10FluenceErr <- ks.test(GRBData_raw_4$log10FluenceErr, GRBData10$log10FluenceErr)
+print(KS_log10FluenceErr)
+
+KS_log10NH <- ks.test(GRBData_raw_4$log10NH, GRBData10$log10NH)
+print(KS_log10NH)
+
+KS_BetaErr <- ks.test(GRBData_raw_4$BetaErr, GRBData10$BetaErr)
+print(KS_BetaErr)
+
+
+## For Gamma ##
+sz = 200
+png(filename = paste(PLOTaddr,'Gamma_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+#par(mar=c(5,5,4,2)+0.1, lwd = 10)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$Gamma,
+     main=paste("Histogram of Gamma with MICE Imputations"),
+     xlab = "Gamma",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$Gamma,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend_text <- c("MICE Imputed Data", "Original Data", paste("p-value:", round(KS_log10NH$p.value, digits = 4)))
+#legend("topright", legend_text, c("Imputed Gamma", "Original Data", paste("p-value:", round(KS_Gamma$p.value, digits = 4))), lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Gamma", "Original Data", paste("p-value:", round(KS_Gamma$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+
+
+dev.off()
+
+
+## For log10T90Err ##
+png(filename = paste(PLOTaddr,'Err_Log(T90)_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$log10T90Err,
+     main=paste("Histogram of Err_Log(T90) with MICE Imputations"),
+     xlab = "Err_Log(T90)",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$log10T90Err,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend_text <- c("MICE Imputed Data", "Original Data", paste("p-value:", round(KS_log10NH$p.value, digits = 4)))
+#legend("topright", legend_text, c("Imputed Gamma", "Original Data", paste("p-value:", round(KS_Gamma$p.value, digits = 4))), lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Err_Log(T90)", "Original Data", paste("p-value:", round(KS_log10T90Err$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For PhotonIndex ##
+png(filename = paste(PLOTaddr,'PhotonIndex_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$PhotonIndex,
+     main=paste("Histogram of PhotonIndex with MICE Imputations"),
+     xlab = "PhotonIndex",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$PhotonIndex,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed PhotonIndex", "Original Data", paste("p-value:", round(KS_PhotonIndex$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed PhotonIndex", "Original Data", paste("p-value:", round(KS_PhotonIndex$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For Beta ##
+png(filename = paste(PLOTaddr,'Beta_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$Beta,
+     main=paste("Histogram of Beta with MICE Imputations"),
+     xlab = "Beta",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$Beta,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed Beta", "Original Data", paste("p-value:", round(KS_Beta$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Beta", "Original Data", paste("p-value:", round(KS_Beta$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For PhotonIndexErr ##
+png(filename = paste(PLOTaddr,'PhotonIndexErr_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$PhotonIndexErr,
+     main=paste("Histogram of PhotonIndexErr with MICE Imputations"),
+     xlab = "PhotonIndexErr",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$PhotonIndexErr,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed PhotonIndexErr", "Original Data", paste("p-value:", round(KS_PhotonIndexErr$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed PhotonIndexErr", "Original Data", paste("p-value:", round(KS_PhotonIndexErr$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For log10PeakFlux ##
+png(filename = paste(PLOTaddr,'Log(PeakFlux)_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$log10PeakFlux,
+     main=paste("Histogram of Log(PeakFlux) with MICE Imputations"),
+     xlab = "Log(PeakFlux)",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$log10PeakFlux,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed Log10(PeakFlux)", "Original Data", paste("p-value:", round(KS_log10PeakFlux$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Log(PeakFlux)", "Original Data", paste("p-value:", round(KS_log10PeakFlux$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For Alpha ##
+png(filename = paste(PLOTaddr,'Alpha_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$Alpha,
+     main=paste("Histogram of Alpha with MICE Imputations"),
+     xlab = "Alpha",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$Alpha,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+legend("topright", legend_text, c("Imputed Alpha", "Original Data", paste("p-value:", round(KS_Alpha$p.value, digits = 4))), 
+       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Alpha", "Original Data", paste("p-value:", round(KS_Alpha$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For log10FluenceErr ##
+png(filename = paste(PLOTaddr,'Err_Alpha_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$AlphaErr,
+     main=paste("Histogram of Err_Alpha with MICE Imputations"),
+     xlab = "Err_Alpha",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$AlphaErr,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed Err_Log10(Fluence)", "Original Data", paste("p-value:", round(KS_log10FluenceErr$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Err_Alpha", "Original Data", paste("p-value:", round(KS_AlphaErr$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+
+dev.off()
+
+
+## For log10PeakFluxErr ##
+png(filename = paste(PLOTaddr,'Err_Log(PeakFlux)_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$log10PeakFluxErr,
+     main=paste("Histogram of Err_Log(PeakFlux) with MICE Imputations"),
+     xlab = "Err_Log(PeakFlux)",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$log10PeakFluxErr,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed Err_log10(PeakFlux)", "Original Data", paste("p-value:", round(KS_log10PeakFluxErr$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Err_Log(PeakFlux)", "Original Data", paste("p-value:", round(KS_log10PeakFluxErr$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For log10FluenceErr ##
+png(filename = paste(PLOTaddr,'Err_Log(Fluence)_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$log10FluenceErr,
+     main=paste("Histogram of Err_Log(Fluence) with MICE Imputations"),
+     xlab = "Err_Log(Fluence)",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$log10FluenceErr,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed Err_Log10(Fluence)", "Original Data", paste("p-value:", round(KS_log10FluenceErr$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Err_Log(Fluence)", "Original Data", paste("p-value:", round(KS_log10FluenceErr$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+
+dev.off()
+
+
+## For log10NH ##
+png(filename = paste(PLOTaddr,'Log(NH)_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$log10NH,
+     main=paste("Histogram of Log(NH) with MICE Imputations"),
+     xlab = "Log(NH)",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$log10NH,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topleft", legend_text, c("Imputed Log10(NH)", "Original Data", paste("p-value:", round(KS_log10NH$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Log(NH)", "Original Data", paste("p-value:", round(KS_log10NH$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+dev.off()
+
+
+## For log10FluenceErr ##
+png(filename = paste(PLOTaddr,'Err_Beta_Distribution_with_MICE.png'),width = 23*sz,height = 20*sz, pointsize = 100)
+par(lwd=20, mar = c(5, 4, 4, 2) + 0.1, font.axis = 2, font.lab = 2)
+hist(GRBData10$BetaErr,
+     main=paste("Histogram of Err_Beta with MICE Imputations"),
+     xlab = "Err_Beta",ylab = 'Number of GRBs',breaks = 50, col='darkmagenta')
+hist(GRBData_raw_4$BetaErr,
+     breaks = 50, add = TRUE, col='cyan')
+
+## Place the legend with the p-value ##
+#legend("topright", legend_text, c("Imputed Err_Log10(Fluence)", "Original Data", paste("p-value:", round(KS_log10FluenceErr$p.value, digits = 4))), 
+#       lwd=50, col=c("darkmagenta", "cyan", "white"), box.lty = 1, box.lwd = 10, border = "black")
+
+# Legend settings
+legend_text <- paste(c("Imputed Err_Beta", "Original Data", paste("p-value:", round(KS_BetaErr$p.value, digits = 4))))
+#legend_y <- 0.05 + 0.04 * (length(libs_SL_CV) + 1)
+legend("topright", legend = legend_text, lwd = 30, cex = 1, text.font = 2, box.lwd = 30, border = "black", col=c("darkmagenta", "cyan", "white"))   # set manually the position of the legend here
+# Draw thick border around legend box, set manually here the position of the box around the legend
+#rect_x <- 0.52
+#rect_y_bottom <- legend_y - 0.043 * (length(libs_SL_CV) + 2)
+#rect(0.52, rect_y_bottom, -0.1, legend_y,
+#     border = "black", lwd = 15)
+#rect(0.52, 0.0, -0.1, 0.43,
+#     border = "black", lwd = 15)
+
+# Define the legend labels
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Create a plot with an empty legend
+#plot(1, type = "n", xlim = c(0, 1), ylim = c(0, 1), xlab = "", ylab = "")
+
+# Define legend colors and labels
+#legend_colors <- c("darkmagenta", "white")
+#legend_labels <- c("MICE Imputed Data", "Original Data")
+
+# Add rectangles with borders as legend items
+#for (i in seq_along(legend_colors)) {
+#  rect_legend <- function(x, y, col, border, lwd, width, height) {
+#    rect(x - width/2, y - height/2, x + width/2, y + height/2, col = col, border = border, lwd = lwd)
+#  }
+#  rect_legend(2, 10 - 0.1 * i, legend_colors[i], "black", 1, 0.1, 0.05)
+#  text(2.1, 10 - 0.1 * i, legend_labels[i], pos = 4)
+#}
+
+#legend("topright", legend = legend_labels, lwd=50, col = legend_colors, box.lty = 1, box.lwd = 10, border = "black")
+
+# Draw x-axis with bold lines and ticks
+axis(1, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+axis(2, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Invert y-axis tick numbering on the right side
+#y_ticks <- pretty(range(ROCperf@y.values[[1]]))  # Get pretty tick marks
+#axis(4, at=y_ticks, labels=y_ticks, lwd=20, lwd.ticks=20, col.axis='black', font=2)
+# Draw the box with bold lines
+#box(lwd=20)
+
+dev.off()
