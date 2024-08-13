@@ -83,6 +83,8 @@ def convert_rmd_to_r(rmd_file, r_file):
 # Example of how you might call this function
 # run_rmd_script("your_script.Rmd", output_file="output.html", apply_mice=True)
 
+subprocess.run(["bash", "install_r2u.sh"], check=True)
+
 st.title("**Redshift Classifier**")
 
 use_m_estimator = "No"
