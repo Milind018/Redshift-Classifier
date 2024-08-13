@@ -11,16 +11,13 @@ if (!dir.exists(custom_lib_path)) {
 
 # List of packages to install
 packages <- c(
-   "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
-              "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
-              "GGally", "cforest", "glm", "glmnet", "kernelKnn", "ksvm", 
-              "svm", "lda", "lm", "qda", "ranger", "randomForest", 
-              "speedglm", "speedlm", "xgboost", "biglasso", 
-              "bayesglm", "caret", "earth"
+    "ggplt2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
+    "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
+    "GGally"
 )
 
 # Install the packages to the specified path
-install.packages(packages, lib = custom_lib_path)
+install.packages(packages, lib = custom_lib_path, dependencies = TRUE)
 
 # Load and confirm installation of each package
 lapply(packages, function(pkg) {
