@@ -8,6 +8,8 @@ if(!dir.exists('CURRENT_ANALYSIS')){dir.create('CURRENT_ANALYSIS')}
 if(!dir.exists('CURRENT_ANALYSIS/Graphics')){dir.create('CURRENT_ANALYSIS/Graphics')}
 if(!dir.exists('CURRENT_ANALYSIS/Graphics/XRAY')){dir.create('CURRENT_ANALYSIS/Graphics/XRAY')}
 if(!dir.exists('CURRENT_ANALYSIS/Graphics/XRAY/RAW_WITHOUT_M-estimator')){dir.create('CURRENT_ANALYSIS/Graphics/XRAY/RAW_WITHOUT_M-estimator')}
+.libPaths("~/Rlibs")
+
 ```
 
 
