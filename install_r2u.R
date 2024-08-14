@@ -11,9 +11,10 @@ if (!dir.exists(custom_lib_path)) {
 
 # List of packages to install
 packages <- c(
-    "ggplt2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
-    "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
-    "GGally"
+    #"ggplt2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
+    #"plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
+    #"GGally"
+    "SuperLearner"
 )
 
 # Install the packages to the specified path
