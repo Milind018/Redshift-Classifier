@@ -17,22 +17,22 @@ if (!dir.exists(custom_lib_path)) {
 # Set the library path
 .libPaths(custom_lib_path)
 
-# Get the list of all installed packages in the default library
-installed_packages <- installed.packages(lib.loc = .libPaths()[2])
+# Get the list of all installed packages in the custom library path
+installed_packages <- installed.packages(lib.loc = custom_lib_path)
 
-# List of package names from the default library
-default_packages <- installed_packages[, "Package"]
+# List of package names from the custom library path
+custom_packages <- installed_packages[, "Package"]
 
 # List of additional packages to install
 new_packages <- c(
     "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel",
     "plyr", "party", "ROCR", "pROC", "abind", "caret", "glmnet", "e1071",
-    "GGally","arm","kernlab","ranger"
+    "GGally", "arm", "kernlab", "ranger"
     #"SuperLearner", "unbalanced"  # Add any other packages you need here
 )
 
-# Combine all packages (default + new)
-packages <- unique(c(default_packages, new_packages))
+# Combine all packages (custom + new)
+packages <- unique(c(custom_packages, new_packages))
 
 # Install and load packages in the custom library path if not already present
 for (pkg in packages) {
@@ -46,8 +46,7 @@ for (pkg in packages) {
             # If CRAN installation fails, try to install from the CRAN archive
             cat(paste("Package", pkg, "not available on CRAN. Trying CRAN archive...\n"))
             tryCatch({
-                # Assuming you know the archived version URL, e.g., for the package `unbalanced`
-                # You can update the URL based on the package and version needed
+                # Assuming you know the archived version URL
                 archived_version_url <- paste0("https://cran.r-project.org/src/contrib/Archive/", pkg, "/", pkg, "_0.6.tar.gz")
                 install.packages(archived_version_url, repos = NULL, type = "source", lib = custom_lib_path)
                 library(pkg, character.only = TRUE, lib.loc = custom_lib_path)
@@ -61,21 +60,36 @@ for (pkg in packages) {
     }
 }
 
-install.packages("randomForest", repos="http://R-Forge.R-project.org")
-if (!requireNamespace("devtools", quietly = TRUE))
+# Install 'randomForest' from R-Forge
+if (!requireNamespace("randomForest", quietly = TRUE)) {
+    install.packages("randomForest", repos="http://R-Forge.R-project.org")
+}
+
+# Install 'devtools' if not already installed
+if (!requireNamespace("devtools", quietly = TRUE)) {
     install.packages("devtools")
-# Install remotes package if not already installed
-#install.packages("remotes")
+}
 
-# Install a specific version of xgboost from the CRAN archive
-install.packages("https://cran.r-project.org/src/contrib/Archive/xgboost/xgboost_0.90.0.1.tar.gz", repos = NULL, type = "source")
-#install.packages("https://cran.r-project.org/src/contrib/Archive/kernlab/kernlab_0.9-29.tar.gz", repos = NULL, type = "source")
-#install.packages("https://cran.r-project.org/src/contrib/Archive/ranger/ranger_0.11.2.tar.gz", repos = NULL, type = "source")
+# Install 'xgboost' from the CRAN archive
+if (!requireNamespace("xgboost", quietly = TRUE)) {
+    install.packages("https://cran.r-project.org/src/contrib/Archive/xgboost/xgboost_0.90.0.1.tar.gz", repos = NULL, type = "source")
+}
 
+## Install 'kernlab' and 'ranger' from the CRAN archive if needed
+#if (!requireNamespace("kernlab", quietly = TRUE)) {
+#    install.packages("https://cran.r-project.org/src/contrib/Archive/kernlab/kernlab_0.9-29.tar.gz", repos = NULL, type = "source")
+#}
+#if (!requireNamespace("ranger", quietly = TRUE)) {
+#    install.packages("https://cran.r-project.org/src/contrib/Archive/ranger/ranger_0.11.2.tar.gz", repos = NULL, type = "source")
+#}
 
-devtools::install_github("mlampros/kernelKnn")
-devtools::install_github("YaohuiZeng/biglasso")
-
+# Install packages from GitHub if not already present
+if (!requireNamespace("kernelKnn", quietly = TRUE)) {
+    devtools::install_github("mlampros/kernelKnn")
+}
+if (!requireNamespace("biglasso", quietly = TRUE)) {
+    devtools::install_github("YaohuiZeng/biglasso")
+}
 
 # Confirm the library path
 print(.libPaths())
