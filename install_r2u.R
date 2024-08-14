@@ -28,7 +28,7 @@ new_packages <- c(
     "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", 
     "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
     "GGally"
-    }
+    )
 
 # Combine all packages (default + new)
 packages <- unique(c(default_packages, new_packages))
