@@ -18,7 +18,7 @@ packages <- c(
 )
 
 # Install the packages to the specified path
-install.packages(packages, lib = custom_lib_path, dependencies = TRUE)
+install.packages(packages, lib = custom_lib_path)
 
 # Load and confirm installation of each package
 lapply(packages, function(pkg) {
