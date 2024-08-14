@@ -11,20 +11,22 @@ if (!dir.exists(custom_lib_path)) {
 
 # List of packages to install
 packages <- c(
-    #"ggplt2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
-    #"plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
-    #"GGally"
-    "SuperLearner"
+    "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
+    "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
+    "GGally"
+    #"SuperLearner"
 )
 
-# Install the packages to the specified path
-install.packages(packages, lib = custom_lib_path)
-
-# Load and confirm installation of each package
-lapply(packages, function(pkg) {
-    library(pkg, character.only = TRUE)
-    cat(paste("Loaded package:", pkg, "\n"))
-})
+# Install packages if not already installed
+for (pkg in packages) {
+    if (!require(pkg, character.only = TRUE)) {
+        install.packages(pkg, lib = custom_lib_path)
+        library(pkg, character.only = TRUE)
+        cat(paste("Installed and loaded package:", pkg, "\n"))
+    } else {
+        cat(paste("Package already installed and loaded:", pkg, "\n"))
+    }
+}
 
 # Confirm the library path
 print(.libPaths())
