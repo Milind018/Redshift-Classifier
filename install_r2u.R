@@ -27,7 +27,7 @@ default_packages <- installed_packages[, "Package"]
 new_packages <- c(
     "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel",
     "plyr", "party", "ROCR", "pROC", "abind", "caret", "glmnet", "e1071",
-    "GGally","arm","randomForest", "xgboost", "kernelKnn", "speedglm", "biglasso", "earth"
+    "GGally","arm"
     #"SuperLearner", "unbalanced"  # Add any other packages you need here
 )
 
@@ -60,6 +60,14 @@ for (pkg in packages) {
         cat(paste("Package already present in custom library and loaded:", pkg, "\n"))
     }
 }
+
+install.packages("randomForest", repos="http://R-Forge.R-project.org")
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+devtools::install_github("dmlc/xgboost", subdir = "R-package")
+devtools::install_github("mlampros/kernelKnn")
+devtools::install_github("YaohuiZeng/biglasso")
+
 
 # Confirm the library path
 print(.libPaths())
