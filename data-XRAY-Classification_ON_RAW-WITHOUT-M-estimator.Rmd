@@ -38,7 +38,7 @@ require(GGally)
 numCores = detectCores() -1  # Leave two cores out so you can still use your machine or if you use the cluster then use all the cores
 cluster=parallel::makeCluster(numCores,outfile="")
 parallel::clusterEvalQ(cluster, .libPaths(c("~/Rlibs", .libPaths())))
-parallel::clusterEvalQ(cluster, library(SuperLearner))
+parallel::clusterEvalQ(cluster, library(SuperLearner), library(arm))
 parallel::clusterSetRNGStream(cluster, 1)
 
 ## Sourcing the external R pacakge. Change the address according to where you save these files. ## which you can find in the next upload and I shall send you in the email before the lecture.
