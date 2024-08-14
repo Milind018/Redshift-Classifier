@@ -27,7 +27,7 @@ default_packages <- installed_packages[, "Package"]
 new_packages <- c(
     "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel",
     "plyr", "party", "ROCR", "pROC", "abind", "caret", "glmnet", "e1071",
-    "GGally"
+    "GGally","arm"
     #"SuperLearner", "unbalanced"  # Add any other packages you need here
 )
 
