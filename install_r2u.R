@@ -68,7 +68,10 @@ if (!requireNamespace("devtools", quietly = TRUE))
 install.packages("remotes")
 
 # Install a specific version of xgboost from the CRAN archive
-remotes::install_version("xgboost", version = "1.3.1.1", repos = "https://cran.r-project.org")
+install.packages("https://cran.r-project.org/src/contrib/Archive/xgboost/xgboost_0.90.0.1.tar.gz", repos = NULL, type = "source")
+install.packages("https://cran.r-project.org/src/contrib/Archive/kernlab/kernlab_0.9-29.tar.gz", repos = NULL, type = "source")
+install.packages("https://cran.r-project.org/src/contrib/Archive/ranger/ranger_0.11.2.tar.gz", repos = NULL, type = "source")
+
 
 devtools::install_github("mlampros/kernelKnn")
 devtools::install_github("YaohuiZeng/biglasso")
