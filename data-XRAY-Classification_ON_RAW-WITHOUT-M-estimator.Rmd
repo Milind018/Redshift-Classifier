@@ -434,7 +434,7 @@ Training_len <- TrainingData$Len
 Test_len <- TestData$Len
 #set.seed(12345)
 system.time({
-  numCores = detectCores() - 2  # Leaving two cores out so you can still use your machine or if you use the cluster then use all the cores
+  numCores = detectCores() - 12  # Leaving two cores out so you can still use your machine or if you use the cluster then use all the cores
   registerDoParallel(numCores)
   loop = 10  # Looping the SL over 100 times to compute the prediction error, we don't need to use the pacakges for the list of models in .packages because they are already inside the SuperLearner package
   SL_CVmodel<-foreach(i = 1:loop, .packages=c("SuperLearner"), .export = libs_SL)
@@ -498,7 +498,7 @@ writeLines(libs_SL_CV, SL_algo_file_path)
 # SL Setup
 ```{r}
 libs_SL_CV = c("SL.cforest", "SL.kernelKnn", "SL.qda", "SL.ranger", "SL.randomForest")
-loop <- 100
+loop <- 10
 plotnames<-paste("_",length(libs_SL_CV),"algo_",ncol(TrainingData[,LassoVars]),"vrb_",loop,"times",sep = "")
 ```
 
@@ -507,7 +507,7 @@ plotnames<-paste("_",length(libs_SL_CV),"algo_",ncol(TrainingData[,LassoVars]),"
 ## No need to change anything here except where mentioned ##
 #set.seed(12345)
 system.time({
-  numCores = detectCores() - 3  # Leaving two cores out so you can still use your machine or if you use the cluster then use all the cores
+  numCores = detectCores() - 12  # Leaving two cores out so you can still use your machine or if you use the cluster then use all the cores
   registerDoParallel(numCores)
   loop = 10
   CVmodel<-foreach(i = 1:loop, .packages=c("SuperLearner"), .export = libs_SL_CV
