@@ -27,7 +27,7 @@ default_packages <- installed_packages[, "Package"]
 new_packages <- c(
     "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel",
     "plyr", "party", "ROCR", "pROC", "abind", "caret", "glmnet", "e1071",
-    "GGally","arm"
+    "GGally","arm","kernlab","ranger"
     #"SuperLearner", "unbalanced"  # Add any other packages you need here
 )
 
@@ -65,12 +65,12 @@ install.packages("randomForest", repos="http://R-Forge.R-project.org")
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
 # Install remotes package if not already installed
-install.packages("remotes")
+#install.packages("remotes")
 
 # Install a specific version of xgboost from the CRAN archive
 install.packages("https://cran.r-project.org/src/contrib/Archive/xgboost/xgboost_0.90.0.1.tar.gz", repos = NULL, type = "source")
-install.packages("https://cran.r-project.org/src/contrib/Archive/kernlab/kernlab_0.9-29.tar.gz", repos = NULL, type = "source")
-install.packages("https://cran.r-project.org/src/contrib/Archive/ranger/ranger_0.11.2.tar.gz", repos = NULL, type = "source")
+#install.packages("https://cran.r-project.org/src/contrib/Archive/kernlab/kernlab_0.9-29.tar.gz", repos = NULL, type = "source")
+#install.packages("https://cran.r-project.org/src/contrib/Archive/ranger/ranger_0.11.2.tar.gz", repos = NULL, type = "source")
 
 
 devtools::install_github("mlampros/kernelKnn")
