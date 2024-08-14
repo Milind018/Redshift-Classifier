@@ -3,3 +3,9 @@ r-base-dev
 r-cran-ggplot2
 r-cran-cowplot
 r-cran-arm
+r-cran-randomForest
+r-cran-xgboost
+r-cran-kernelKnn
+r-cran-speedglm
+r-cran-biglasso
+r-cran-earth
