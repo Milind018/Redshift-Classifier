@@ -1,6 +1,14 @@
 # Define the custom library path
 custom_lib_path <- "~/Rlibs"
 
+# Remove any existing lock files in the custom library path
+lock_files <- list.files(custom_lib_path, pattern = "^00LOCK", full.names = TRUE)
+if (length(lock_files) > 0) {
+    sapply(lock_files, unlink, recursive = TRUE)
+    cat("Removed lock files:\n")
+    print(lock_files)
+}
+
 # Create the directory if it doesn't exist
 if (!dir.exists(custom_lib_path)) {
     dir.create(custom_lib_path, recursive = TRUE)
@@ -17,11 +25,10 @@ default_packages <- installed_packages[, "Package"]
 
 # List of additional packages to install
 new_packages <- c(
-    "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
+    "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", 
     "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
     "GGally"
-    #"SuperLearner"
-)
+    }
 
 # Combine all packages (default + new)
 packages <- unique(c(default_packages, new_packages))
