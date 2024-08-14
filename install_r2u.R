@@ -64,7 +64,12 @@ for (pkg in packages) {
 install.packages("randomForest", repos="http://R-Forge.R-project.org")
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
-devtools::install_github("dmlc/xgboost", subdir = "R-package")
+# Install remotes package if not already installed
+install.packages("remotes")
+
+# Install a specific version of xgboost from the CRAN archive
+remotes::install_version("xgboost", version = "1.3.1.1", repos = "https://cran.r-project.org")
+
 devtools::install_github("mlampros/kernelKnn")
 devtools::install_github("YaohuiZeng/biglasso")
 
