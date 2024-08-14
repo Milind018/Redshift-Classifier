@@ -20,7 +20,7 @@ new_packages <- c(
     "ggplot2", "gplots", "SuperLearner", "foreach", "parallel", "doParallel", "unbalanced",
     "plyr", "party", "ROCR", "pROC", "rbind", "cbind", "abind", "caret", "glmnet", "e1071",
     "GGally"
-    "SuperLearner"
+    #"SuperLearner"
 )
 
 # Combine all packages (default + new)
