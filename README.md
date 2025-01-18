@@ -31,7 +31,7 @@ of the proposed method paves the way for new and intriguing follow-up observatio
 # Documentation
 
 The Redshift-Classifier's (X-Ray) documentation is available in this repository and also hosted 
-on [readthedocs.io](https://gampen.readthedocs.io/) . Although the documentation
+on [readthedocs.io](https://redshift-classifier.readthedocs.io/en/latest/) . Although the documentation
 is fairly complete; if you are trying to use  Redshift-Classifier(X-Ray) Web-app and run into issues, 
 please get in touch with us!
 
