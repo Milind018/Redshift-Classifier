@@ -32,11 +32,11 @@ of the proposed method paves the way for new and intriguing follow-up observatio
 
 The Redshift-Classifier's (X-Ray) documentation is available in this repository and also hosted 
 on [readthedocs.io](https://gampen.readthedocs.io/) . Although the documentation
-is fairly complete; if you are trying to use  GaMPEN and run into issues, 
+is fairly complete; if you are trying to use  Redshift-Classifier(X-Ray) Web-app and run into issues, 
 please get in touch with us!
 
 # Publications
-The Redshift-Classifier(X-Ray) was initially introduced in the following publication. Please cite this publication if you make use of GaMPEN or some code herein.
+The Redshift-Classifier(X-Ray) was initially introduced in the following publication. Please cite this publication if you make use of Redshift-Classifier(X-Ray) Web-app or some code herein.
 
 ``` tex
 @misc{dainotti2025grbredshiftclassifierfollowup,
