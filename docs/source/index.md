@@ -3,7 +3,7 @@
 :hidden:
 
 self
-About_Gampen
+About_XRC
 Getting_Started
 Tutorials
 Using_GaMPEN
