@@ -1,4 +1,4 @@
-# Using GaMPEN
+# Usage
 On this page, we go over the most important user-facing functions that GaMPEN has and what each of these functions do. Read this page carefully to understand the various arguments/options that can be set while using these functions. 
 
 
