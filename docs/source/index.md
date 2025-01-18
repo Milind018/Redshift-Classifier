@@ -5,9 +5,7 @@
 self
 About_XRC
 Getting_Started
-Tutorials
-Using_GaMPEN
-Public_data
+Using_XRC
 ```
 
 # Home
