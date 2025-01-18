@@ -33,7 +33,7 @@ release = "1.0.0"
 extensions = [
     "sphinx_rtd_theme",
     "myst_parser",
-    "autoapi.extension",
+#    "autoapi.extension",
     "sphinx.ext.mathjax",
     "sphinx_copybutton",
 ]
