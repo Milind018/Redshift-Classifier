@@ -2,6 +2,35 @@
 
 GaMPEN is written in Python and relies on the [PyTorch](https://pytorch.org/) deep learning library to perform all of its tensor operations.
 
+# Redshift Classifier
+
+## Installation
+
+This repository includes an ensemble machine learning classification method for GRB redshifts from X-ray data. It allows for the inclusion of the M-estimator with a custom weight cutoff for outliers, Multivariate Imputation by Chained Equations (MICE), Synthetic Minority Over-sampling Technique (SMOTE) balancing, and a chosen redshift cutoff between high- and low-z GRBs, in accordance with the procedure described in [https://arxiv.org/abs/2408.08763](https://arxiv.org/abs/2408.08763). The app can be run locally with custom settings based on users' specific requirements.
+
+To set up the project and ensure all dependencies are installed, ensure that you have access to
+* **R** (version >= 4.3.2) with RStudio
+* **Python** (version >= 3.9)
+* **Git** to clone the repository
+
+Then locally clone the project repository from GitHub:
+```
+git clone https://github.com/Milind018/Redshift-Classifier.git 
+```
+
+To install the necessary R packages, open and run `Package_install.Rmd` in RStudio. Alternatively, use the `install.packages` command with `packages.txt` and `https://cran.r-project.org` as the base URL of repositories.
+
+This project also requires the Python libraries **Streamlit**, **Pandas**, and **Pillow**, which can be installed with `pip install -r requirements.txt`
+
+> You may also want to customize the output directory for plots and files `PLOTaddr` in the downloaded R scripts and specify parallelization settings, if desired.
+
+Simply launch the Python application to run the R scripts through Streamlit:
+```
+streamlit run app.py
+```
+Then you may specify classification settings and choose the dataset .csv to upload.
+
+
 ## Installation
 Training and inference for GaMPEN requires Python 3.7 or 3.8. Trained GaMPEN models can be run on a CPU to perform inference, but training a model requires access to a CUDA-enabled GPU for reasonable training times.
 
