@@ -2,8 +2,6 @@
 
 Redshift-Classifier(X-Ray) is written in R and Python and relies on the [Streamlit]([https://pytorch.org/](https://streamlit.io/)) for its GUI Weeb-app.
 
-# Redshift Classifier
-
 ## Installation
 
 This repository includes an ensemble machine learning classification method for GRB redshifts from X-ray data. It allows for the inclusion of the M-estimator with a custom weight cutoff for outliers, Multivariate Imputation by Chained Equations (MICE), Synthetic Minority Over-sampling Technique (SMOTE) balancing, and a chosen redshift cutoff between high- and low-z GRBs, in accordance with the procedure described in [https://arxiv.org/abs/2408.08763](https://arxiv.org/abs/2408.08763). The app can be run locally with custom settings based on users' specific requirements.
