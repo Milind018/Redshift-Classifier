@@ -1,6 +1,6 @@
 # Getting Started
 
-GaMPEN is written in Python and relies on the [PyTorch](https://pytorch.org/) deep learning library to perform all of its tensor operations.
+Redshift-Classifier(X-Ray) is written in R and Python and relies on the [Streamlit]([https://pytorch.org/](https://streamlit.io/)) for its GUI Weeb-app.
 
 # Redshift Classifier
 
