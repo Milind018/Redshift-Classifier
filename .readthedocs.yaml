@@ -10,9 +10,9 @@ sphinx:
 formats: all
 
 build:
-  os: ubuntu-20.04
+  os: ubuntu-latest
   tools: 
-    python: "3.7"
+    python: "3.11"
   
 python:
    install:
