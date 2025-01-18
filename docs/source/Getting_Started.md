@@ -1,150 +1,218 @@
-# About GaMPEN
+# Getting Started
 
-## Why was GaMEPN developed?
-Although Convolutional Neural Networks (CNNs) have been used for galaxy morphology determination for quite some time now, a few challenges had persisted. 
+GaMPEN is written in Python and relies on the [PyTorch](https://pytorch.org/) deep learning library to perform all of its tensor operations.
 
-Most previously developed CNNs provided broad morphological classifications; and there had been very limited work on estimating structural parameters of galaxies or associated uncertainties using CNN. Even popular non-machine learning tools like Galfit severely underestimate uncertainties by values as high as $\sim75\%$. 
+## Installation
+Training and inference for GaMPEN requires Python 3.7 or 3.8. Trained GaMPEN models can be run on a CPU to perform inference, but training a model requires access to a CUDA-enabled GPU for reasonable training times.
 
-The computation of full Bayesian posteriors for these structural parameters is crucial for drawing scientific inferences that account for uncertainty and are indispensable in the derivation of robust scaling relations or tests of theoretical models using morphology.
+1. Create a new conda environment with Python 3.7 or 3.8. Extensive instructions on how to create a conda enviornment can be found [here](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-with-commands). Of course, you could use any other method of creating a virtual environment, but we will assume you are using conda for the rest of this guide.
+```bash
+conda create -n gampen python=3.7
+```
+2. Activate the new environment
+```bash
+conda activate gampen
+```
+3. Navigate to the directory where you want to install GaMPEN and then clone this repository with
+```bash
+git clone https://github.com/aritraghsh09/GaMPEN.git
+```
+4. Navigate into the root directory of GaMPEN 
+```bash
+cd GaMPEN
+```
+4. Install all the required dependencies with
+```bash
+make requirements
+```
+5. To confirm that the installation was successful, run
+```bash
+make check
+```
+It is okay if there are some warnings or some tests are skipped. The only thing you should look out for is errors produced by the `make check` command.
 
-One other challenge of using CNNs in astronomy, is the necessity to use fixed cutout sizes. Many practitioners choose to use a large cutout size for which "most galaxies" would remain in the frame. However, this means that typical cutouts contain other galaxies in the frame, often leading to less accurate results. Thus, this becomes a bottleneck when applying CNNs to galaxies over a wide magnitudes or redshifts.
-
-In order to address these above challenges, we developed GaMPEN.
-
-:::{admonition} GaMPEN Feature Summary:-
-:class: note
-
-1. GaMPEN estimates posterior distributions for (user-selected) structural parameters of galaxies.
-
-    * GaMPEN's predicted posteriors are **extremely well-calibrated and accurate ($\lesssim 5\%$ derivation)**. They have been shown to be **upto $\sim60\%$ more accurate compared to uncertainties predicted by light-profile fitting algorithms.**
-
-    * GaMPEN takes into account both aleatoric & epistemic uncertainties.
-
-    * GaMPEN incorporates the full covariance matrix in its loss function allowing it to achieve well-calibrated uncertainties for all output parameters.
-
-2. GaMPEN automatically crops input images to an optimal size before determining their morphology.
-    *  Due to GaMPEN's design, this step requires no additional training step; except the training to predict structural parameters.
+:::{tip}
+If you get an error about specific `libcudas` libraries being absent while running `make check`, this has probably to do with the fact that you don't have the appropriate `CUDA` and `cuDNN` versions installed for the PyTorch version being used by GaMPEN. See [below](#gpu-support) for more details about GPU support.
 :::
 
- 
+## GPU Support
 
-## What Parameters and Surveys can GaMPEN be Used for?
+GaMPEN can make use of multiple GPUs while training if you pass in the appropriate arguments to the `train.py` script.
 
-The [publicly released GaMPEN models](./Public_data.md) can be easily used for the specific surveys (and magnitude/redshift ranges) on which the models were trained. For example, our [Hyper Suprime-Cam (HSC) models](./Public_data.md#hsc-wide-pdr2-galaxies) can be used to estimate the bulge-to-total light ratio, effective radius, and flux of HSC galaxies till $z < 0.75$.
+To check whether the GaMPEN is able to detect GPUs, type `python` into the command line from the root directory and run the following command:
+```python
+from ggt.utils.device_utils import discover_devices
+discover_devices()
+```
+The output should be `cuda`if GaMPEN can detect a GPU.
 
-:::{note}
-However, GaMPEN models can be trained from scratch to determine **any combination of parametric and non-parametric structural parameters** (e.g., Sersic Index, Concentration, Asymmetry, etc.) for **any space or ground-based imaging survey**. 
-:::
+If the output is `cpu` then GaMPEN couldn't find a GPU. This could be because you don't have a GPU, or because you haven't installed the appropriate CUDA and cuDNN versions.
 
-The only catch is that if your data or desired prediction-parameters are different from what we used to train the models, you might have to either fine-tune one of the publicly-released models or train a new model from scratch. We provide a couple of example scenarios below:-
+ If you are using an NVIDIA GPU, then you can use [this link](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch) for more details about specific CUDA and cuDNN versions that are compatible with different PyTorch versions. To check the version of PyTorch you are using, type `python` into the command line and then run the following code-block:
 
-* **Predicting on HSC Data but with Fainter/Higher Redshift Galaxies or Data in a Different Band:** Start with a publicly-released model that is the closest to your dataset; then fine-tune this model using $\sim \mathcal{O} (10^3)$ galaxies with available ground-truth values.
-
-* **Predicting Structural Parameters on HSC Data Not Included in Our Public Release:** Start with our publicly-released models on real HSC data; discard the last few layers; re-train with ground-truth values for the new structural parameters you want to predict (e.g., Sérsic Index, Concentration, etc.) for  $\sim \mathcal{O} (10^3-10^4)$ galaxies.
-
-* **Predicting on Dark Energy Survey Data:** Start with our publicly-released models on real HSC data (as this will be better than starting from a random initialization); retrain with $\sim \mathcal{O} (10^3-10^4)$ real DES galaxies with ground-truth values.
-
-Don't hesitate to contact us if you want our help/advice in training a GaMPEN model for your survey/parameters! 
-
-## More Technical Details About GaMPEN
-
-### GaMPEN's Architecture
-
-![GaMPEN architecture](../assets/GaMPEN_architecture.png "Architecture of GaMPEN")
-
-GaMPEN's architecture consists of two separate entities:-
- * an upstream Spatial Transformer Network (STN) which enables GaMPEN to automatically crop galaxies to an optimal size;
- * a downstream Convolutional Neural Network (CNN) which enables GaMPEN to predict posterior distributions for various morphological parameters.
-
-GaMPEN's design is based on our previously successful classification CNN, [GaMorNet](https://gamornet.readthedocs.io/en/latest/), as well as as different variants of the Oxford Visual Geometry Group networks. We tried a variety of different architectures before finally converging on this design.
-
-### GaMPEN's Posteriors/Uncertainties
-![GaMPEN Uncertainty Prediction](../assets/workflow_gampen.png "GaMPEN Uncertainty Prediction Workflow")
-
-To predict posteriors, GaMMPEN takes into account both aleatoric and epistemic uncertainties. It uses the negative log-likelihood of the output parameters as the loss function combined with the Monte Carlo Dropout technique. GaMPEN also incorporates the full covariance matrix in the loss function, using a series of algebraic manipulations.
-
-The uncertainties/posteriors produced by GaMPEN have been shown to be extremely well-calibrated ( $\lesssim 5\%$ deviation). As shown in [Ghosh et al. 2023](https://arxiv.org/abs/2212.00051), this represents a significant improvement over state-of-the-art light profile fitting tools which underestimate uncertainties by $\sim15\%-60\%$ depending on the brightness of the source. 
-
-For a more detailed overview of GaMPEN's uncertainty prediction, we refer to the interested reader to Section 4 and Appendix B of [Ghosh et al. 2022](https://arxiv.org/abs/2207.05107).
-
-### How Does GaMPEN Automatically Crop Galaxies?
-![GaMPEN STN Examples](../assets/stn_examples.png "Examples of Performance of the GaMPEN Spatial Transformation Network")
-
-In GaMPEN, the Spatial Transformation Network (STN) is upstream of the CNN, where it applies a two-dimensional affine transformation to the input image. Each input image is transformed differently by the STN, which learns the appropriate cropping during the training of the downstream CNN *without additional supervision.*
-
-To perform the transformation the STN predicts the six-parameter matrix of the affine transformation $A_{\theta}$ to be applied to the input image
-
-$$ 
-    \left(\begin{array}{c}
-    x_{i}^{s} \\
-    y_{i}^{s}
-    \end{array}\right) = A_{\theta}\left(\begin{array}{c}
-    x_{i}^{t} \\
-    y_{i}^{t} \\
-    1
-    \end{array}\right) 
-    = \left[\begin{array}{lll}
-    \theta_{11} & \theta_{12} & \theta_{13} \\
-    \theta_{21} & \theta_{22} & \theta_{23}
-    \end{array}\right]\left(\begin{array}{c}
-    x_{i}^{t} \\
-    y_{i}^{t} \\
-    1
-    \end{array}\right)
-$$
-
-where $ \left(x_i^s,y_i^s\right)$ and $ \left( x_i^t, y_i^t \right) $ are the source and target co-ordinates respectively. As the network trains, the predicted transformation alters slowly based on the loss function (of the downstream task of structural parameter prediction).
-
-Because the transformation we use is differentiable with respect to the parameters, 
-gradients can be backpropagated to the predicted parameters $A_{\theta}$. This crucial property allows the STN to be trained using standard backpropagation along with the downstream CNN, without any additional supervision.
-
-
-
-### Prediction Stability Against Rotational Transformations
-![Rotational Transformation](./../assets/real_data_gampen_video.gif "Rotational Transformation")
-
-Although CNNs learn to recognize features that are 
-invariant under translation -- the learned features are typically not rotationally
-invariant. However, this is a problem if CNNs are to be used in astronomy -- especially,
-for determining the morphology of galaxies. A CNN should be able to identify the same 
-galaxy at two different orientations and return the same values. *But is this true? To what level are the predictions stable?*
-
-The above video shows the stability of predictions by GaMPEN when an input galaxy image
-is rotated through various angles. GaMPEN's predictions of all three 
-output parameters -- bulge-to-total light ratio ($L_B/L_T$), effective radius ($R_e$),
-and flux -- are fairly stable against rotations.
-
-
-## Publications
-GaMPEN was initially introduced in [Ghosh et al. 2022](https://iopscience.iop.org/article/10.3847/1538-4357/ac7f9e) with a companion catalog of Hyper Suprime-Cam Galaxy Structural Parameters in [Ghosh et al. 2023](https://iopscience.iop.org/article/10.3847/1538-4357/acd546).
-
-Since then, GaMPEN has been used in other publications. We always try to maintain an updated record of GaMPEN's trained models and associated catalogs [on this page](./Public_data.md).
-
-
-## Attribution Info.
-
-Please cite the below mentioned publication if you make use of GaMPEN or some code herein.
-
-```tex
-   @article{Ghosh2022,
-   author = {Aritra Ghosh and C. Megan Urry and Amrit Rau and Laurence Perreault-Levasseur and Miles Cranmer and Kevin Schawinski and Dominic Stark and Chuan Tian and Ryan Ofman and Tonima Tasnim Ananna and Connor Auge and Nico Cappelluti and David B. Sanders and Ezequiel Treister},
-   doi = {10.3847/1538-4357/ac7f9e},
-   issn = {0004-637X},
-   issue = {2},
-   journal = {The Astrophysical Journal},
-   month = {8},
-   pages = {138},
-   title = {GaMPEN: A Machine-learning Framework for Estimating Bayesian Posteriors of Galaxy Morphological Parameters},
-   volume = {935},
-   year = {2022},
-   }
+```python
+import torch
+print(torch.__version__)
 ```
 
-Additionally, if you are using publicly-released GaMPEN models or catalogs for a specific survey, please cite the relevant publication(s) outlined on [this page](./Public_data.md).
+
+## Quickstart
+
+The core steps involved in running GaMPEN include :-
+
+1. Placing your data in a specific directory structure
+2. Using the `GaMPEN/ggt/data/make_splits.py` script to generate train/devel/test splits
+3. Using the `GaMPEN/ggt/train/train.py` script to train a GaMPEN model
+4. Using the MLFlow UI to monitor your model during and after training
+5. Using the `GaMPEN/ggt/modules/inference.py` script to perform predictions using the trained model.
+6. Using the `GaMPEN/ggt/modules/result_aggregator.py` script to aggregate the predictions into an easy-to-read pandas data-frame.
+
+:::{attention}
+We strongly recommend going through our [Tutorials](Tutorials.md) and [Using GaMPEN](Using_GaMPEN.md) pages to get an in-depth understanding of how to use GaMPEN, and an overview of all the steps above.
+
+Here, we provide a quick-and-dirty demo to just get you started training your 1st GaMPEN model! This section is intentionally short, without much explanation.
+:::
+
+### Data preparation
+Let's download some simulated Hyper Suprime-Cam (HSC) images from the Yale servers. To do this run from the root directory of this repository:
+
+```bash
+make demodir=./../hsc hsc_demo
+```
+
+This should create a directory called `hsc` at the specified `demodir` path with the following components
+
+```text
+- hsc
+  - info.csv -- file names of the trianing images with labels
+  - cutouts/ -- 67 images to be used for this demo
+```
+
+Now, let's split the data into train, devel, and test sets. To do this, run
+```bash
+python ./ggt/data/make_splits.py --data_dir=./../hsc/ --target_metric='bt'
+```
+
+This will create another folder called `splits` within `hsc` with the different data-splits for training, devel (validation), and testing.
+
+### Running the trainer
+Let's use the data we just downloaded to train a GaMPEN model. To do this, we will
+use the `train.py` script:-
+
+```bash
+python ggt/train/train.py \
+  --experiment_name='demo' \
+  --data_dir='./../hsc/' \
+  --split_slug='balanced-dev2' \
+  --batch_size=16 \
+  --epochs=2 \
+  --lr=5e-7 \
+  --momentum=0.99 \
+  --crop \
+  --cutout_size=239 \
+  --target_metrics='custom_logit_bt,ln_R_e_asec,ln_total_flux_adus' \
+  --repeat_dims \
+  --no-nesterov \
+  --label_scaling='std' \
+  --dropout_rate=0.0004 \
+  --loss='aleatoric_cov' \
+  --weight_decay=0.0001 \
+  --parallel
+```
+To list the all possible options along with explanations, head to the [Using GaMPEN](Using_GaMPEN.md) page or run
+```bash
+python ggt/train/train.py --help
+```
+
+### Launching the MLFlow UI
+
+Although, this is an optional step, GaMPEN comes pre-installed with the [MLFlow UI](https://mlflow.org/) to help you 
+monitor the different models that you are currently training and compare these with models you have trained in the past. 
+
+To initialize MLFlow, open a separate shell and _activate the virtual environment_ that the model is training in. Then,
+navigate to the directory from where you initiated the training run and execute the following command:-
+
+```bash
+mlflow ui
+```
+Now navigate to `http://localhost:5000/` to access the MLFlow UI which will show you the status of your model training.
+
+:::{warning}
+If you are running these commands on a server/remote machine, you will need to follow the additional instructions listed below
+to access the MLFlow UI.
+:::
+
+#### MLFLow on a remote machine
+
+First, on the server/HPC system, open a shell and _activate the virtual environment_ that the model is training in. Thereafter, navigate to the directory from where you initiated your GaMPEN run (you can do this on separate machine as well -- only the filesystem needs to tbe same). Then, execute the following command:-
+
+```bash
+mlflow ui --host 0.0.0.0
+```
+
+The `--host` option is important to make the MLFlow  server accept connections from other machines. 
+
+Now, from your local machine, tunnel into the `5000` port of the server where you ran the above command. After forwarding, if you navigate to  `http://localhost:5000/` you should be able to access the MLFlow UI.
+
+:::{tip}
+For example, let's say you are working in an HPC environment, where the machine where you ran the above command is named `server1` and the login node to your HPC system is named `hpc.university.edu` and you have the username `astronomer`. Then, to establish port-forwarding, you should type the following command on your local machine:-
+
+```bash
+ssh -N -L 5000:server1:5000 astronomer@hpc.university.edu
+```
+
+If performing the above step without a login node (e.g., a server which has the IP `server1.university.edu`), you should be able to
+establish port-forwarding simply with:- 
+
+```bash
+ssh -N -L 5000:localhost:5000 astronomer@server1.university.edu
+```
+:::
 
 
-## Getting Help/Contributing
 
-We always welcome contributions to GaMPEN! If you have any questions about using GaMPEN, please feel free to send me an e-mail at this ``aritraghsh09@xxxxx.com`` GMail address.
+### Training on other datasets
+In [Running the trainer](#running-the-trainer) section, we demonstrated how to train a GaMPEN model on the demo HSC
+dataset. Below, we outline the core steps involved in training a model on your own data:-
 
-If you have spotted a bug in the code/documentation or you want to propose a new feature, please feel free to open an issue/a pull request on [GitHub](https://github.com/aritraghsh09/GaMPEN).
+1. Create the necessary directory structure with:-
+
+```bash
+mkdir -p dataset-name/cutouts
+```
+where `dataset-name` can be any name of your choosing.
+
+2. GaMPEN expects input images to be in the `.fits` format, centered on the galaxy of interest. Make 
+same-sized individual cutouts for all objects in your dataset; and place these files in `dataset-name/cutouts/`.
+
+3. Place a file titled `info.csv` inside the `dataset-name` directory. This file should have (at least) a column titled `file_name` (corresponding to the names of the files in `dataset-name/cutouts`), a column titled `object_id` (with a unique ID for each file in `dataset-name/cutouts/`) and one column each for the parameters that you are trying to predict. For example, if you are trying to predict the radius and magnitude of a galaxy, you would have two columns titled `radius` and `magnitude`. 
+
+:::{note}
+Besides the `file_name` and `object_id` columns; all other columns in `info.csv` can be named according to your choosing. 
+There are also no limitations on additional columns being present in `info.csv`.
+:::
+
+4. Next, separate your dataset into train, devel, and test splits with the following command:-
+
+```bash
+python ggt/data/make_splits.py --data_dir=/dataset-name/
+```
+:::{attention}
+You should provide the full path of the `dataset-name` directory to the `data_dir` argument.
+:::
+
+The `make_splits.py` file splits the dataset according to a set of pre-determined fractions and you can choose to use any of these for your analysis. Details of the various splits are mentioned on the [Using GaMPEN](Using_GaMPEN.md#make-splits) page.
+
+After generating the splits, the `dataset-name` directory should look like this:
+```
+- dataset_name
+    - info.csv
+    - cutouts/
+    - splits/
+```
+
+:::{tip}
+To change the fractions (of train/devel/test data) in the various splits; alter the `split_types` dictionary in `make_splits.py`
+:::
+
+5. Follow the instructions in [Running the trainer](#running-the-trainer).
