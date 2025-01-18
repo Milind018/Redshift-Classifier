@@ -1,4 +1,4 @@
-# About GaMPEN
+# About
 
 ## Why was GaMEPN developed?
 Although Convolutional Neural Networks (CNNs) have been used for galaxy morphology determination for quite some time now, a few challenges had persisted. 
