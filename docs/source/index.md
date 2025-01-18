@@ -14,7 +14,6 @@ Using_XRC
 Note that although GaMPEN's current documentation is fairly substantive, we are still working on some parts of the documentation and some Tutorials. If you run into issues while trying to use GaMPEN, please contact us! We will be more than happy to help you!
 ```
 
-![Introductory Image](./../assets/gampen_intro_crop.png)
 
 ***
 
@@ -28,12 +27,10 @@ Once trained, it takes GaMPEN less than a millisecond to perform a single model 
 
 
 ## First Steps with GaMPEN
-0. For a quick blog-esque introduction to the most important features of GaMPEN, please check out [About GaMPEN](./About_Gampen.md).
+0. For a quick blog-esque introduction to the most important features of Redshift-Classifier(X-Ray), please check out [About](./About_XRC.md).
 :::{tip}
-For a deep-dive, please refer to [Ghosh et. al. 2022](https://doi.org/10.3847/1538-4357/ac7f9e) and [Ghosh et. al 2023](https://doi.org/10.3847/1538-4357/acd546).
+For a deep-dive, please refer to [Dainotti et. al. 2022](https://arxiv.org/abs/2408.08763).
 :::
 1. Follow the installation instructions and quick-start guide in [Getting Started](./Getting_Started.md).
-2. Go through the [Tutorials](./Tutorials.md) to learn how to use GaMPEN for a variety of different tasks.
-3. Review the [Using GaMPEN](./Using_GaMPEN.md) page to dive into the details about the various user-facing functions that GaMPEN provides.
+2. Review the [Usage](./Using_XRC.md) page to dive into the details about the various user-facing functions that our classifier provides and how to use them in a GUI environment.
 
-Note that if you want to access the publicly released GaMPEN models or structural parameter catalogs for specific surveys (e.g., Hyper Suprime-Cam), please refer to the [Public Catalogs & Trained Models](./Public_data.md) page.
