@@ -59,7 +59,7 @@ license.
 
 # Contributors
 
-The Redshift-Classifier(X-Ray) Ensemble Learning Framework and Web-App was initially developed by Shubham and Milind
+The Redshift-Classifier(X-Ray) Ensemble Learning Framework and Web-App was initially developed by Shubham Bhardwaj and Milind Sarkar
 
 The initial documentation was developed by [Milind](https://milind018.github.io/) and [Shubham](https://github.com/QGravityGRGW)
 
