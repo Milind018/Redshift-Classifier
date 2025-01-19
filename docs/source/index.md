@@ -11,7 +11,7 @@ Using_XRC
 # Home
 
 ```{attention}
-Note that although Redshift Classifier (X-Ray) current documentation is fairly substantive, we are still working on some parts of the documentation. If you run into issues while trying to use GaMPEN, please contact us! We will be more than happy to help you!
+Note that although Redshift-Classifier (X-Ray) current documentation is fairly substantive, we are still working on some parts of the documentation. If you run into issues while trying to use Redshift-Classifier (X-Ray), please contact us! We will be more than happy to help you!
 ```
 
 
