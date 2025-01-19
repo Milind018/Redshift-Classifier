@@ -48,7 +48,7 @@ The Redshift-Classifier(X-Ray) was initially introduced in [Dainotti et al. 2025
 
 ## Attribution Info.
 
-Please cite the below mentioned publication if you make use of GaMPEN or some code herein.
+Please cite the below mentioned publication if you make use of Redshift-Classifier (X-Ray) or some code herein.
 
 ``` tex
 @misc{dainotti2025grbredshiftclassifierfollowup,
