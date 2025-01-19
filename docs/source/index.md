@@ -26,7 +26,7 @@ Once trained, it takes GaMPEN less than a millisecond to perform a single model 
 
 
 
-## First Steps with Redshist-Classifier (X-Ray)
+## First Steps with Redshift-Classifier (X-Ray)
 0. For a quick blog-esque introduction to the most important features of Redshift-Classifier(X-Ray), please check out [About](./About_XRC.md).
 :::{tip}
 For a deep-dive, please refer to [Dainotti et. al. 2025](https://arxiv.org/abs/2408.08763).
