@@ -1,4 +1,4 @@
-# Redshift-Classifier (X-Ray)
+# Redshift-Classifier (X-ray)
 
 <!--[![Status of Build and Tests Workflow](https://github.com/aritraghsh09/GaMPEN/actions/workflows/main.yml/badge.svg)](https://github.com/aritraghsh09/GaMPEN/actions/workflows/main.yml)-->
 [![Documentation Status](https://readthedocs.org/projects/gampen/badge/?version=latest)](https://redshift-classifier.readthedocs.io/en/latest/)
@@ -11,32 +11,17 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2408.08763-blue)](https://arxiv.org/abs/2408.08763)
 
 
-Gamma-ray bursts (GRBs) are intense, short-lived bursts of gamma-ray radiation observed up to a
-high redshift (z ∼ 10) due to their luminosities. Thus, they can serve as cosmological tools to probe the
-early Universe. However, we need a large sample of high−z GRBs, currently limited due to the difficulty
-in securing time at the large aperture Telescopes. Thus, it is painstaking to determine quickly whether
-a GRB is high−z or low−z, which hampers the possibility of performing rapid follow-up observations.
-Previous efforts to distinguish between high− and low−z GRBs using GRB properties and machine
-learning (ML) have resulted in limited sensitivity. In this study, we aim to improve this classification
-by employing an ensemble ML method on 251 GRBs with measured redshifts and plateaus observed
-by the Neil Gehrels Swift Observatory. Incorporating the plateau phase with the prompt emission,
-we have employed an ensemble of classification methods to enhance the sensitivity unprecedentedly.
-Additionally, we investigate the effectiveness of various classification methods using different redshift
-thresholds, zthreshold=zt at zt = 2.0, 2.5, 3.0, and 3.5. We achieve a sensitivity of 87% and 89% with
-a balanced sampling for both zt = 3.0 and zt = 3.5, respectively, representing a 9% and 11% increase
-in the sensitivity over Random Forest used alone. Overall, the best results are at zt = 3.5, where the
-difference between the sensitivity of the training set and the test set is the smallest. This enhancement
-of the proposed method paves the way for new and intriguing follow-up observations of high−z GRBs.
+Redshift-Classifier (X-ray) is a reliable ensemble machine learning framework developed to classify X-ray gamma-ray bursts (GRBs) as high-redshift or low-redshift based on the desired redshift cutoff (user-defined). We have used all the GRB light-curve (LC) phases in this framework, prompt, X-ray plateau, and X-ary afterglow, as features to train and test the models. However, our model is developed to use any set of features based on the availability and user's interest. This ML framework is developed to quickly identify if a GRB is a high-redshift or a low-redshift as soon as a new GRB is detected, which will help other facilities to have quick and more precise follow-up observations.
 
 # Documentation
 
 The Redshift-Classifier's (X-Ray) documentation is available in this repository and also hosted 
-on [readthedocs.io](https://redshift-classifier.readthedocs.io/en/latest/) . Although the documentation
-is fairly complete; if you are trying to use  Redshift-Classifier(X-Ray) Web-app and run into issues, 
+on [readthedocs.io](https://redshift-classifier.readthedocs.io/en/latest/). Although the documentation
+is fairly complete, if you are trying to use the  Redshift-Classifier (X-ray) Web app and run into issues, 
 please get in touch with us!
 
 # Publications
-The Redshift-Classifier(X-Ray) was initially introduced in the following publication. Please cite this publication if you make use of Redshift-Classifier(X-Ray) Web-app or some code herein.
+The Redshift-Classifier(X-Ray) was initially introduced in the following publication. Please cite this publication if you make use of the Redshift-Classifier (X-ray) Web app or some code herein.
 
 ``` tex
 @misc{dainotti2025grbredshiftclassifierfollowup,
@@ -59,7 +44,7 @@ license.
 
 # Contributors
 
-The Redshift-Classifier(X-Ray) Ensemble Learning Framework and Web App was initially developed by Shubham Bhardwaj and Milind Sarkar
+The Redshift-Classifier(X-ray) Ensemble Learning Framework and Web App was initially developed by Shubham Bhardwaj and Milind Sarkar.
 
 The initial documentation was developed by [Milind Sarkar](https://milind018.github.io/) and [Shubham Bhardwaj](https://github.com/QGravityGRGW)
 
