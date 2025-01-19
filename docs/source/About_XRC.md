@@ -1,67 +1,49 @@
 # About
 
 ## Why was Redshift-Classifier (X-Ray) developed?
-Although Convolutional Neural Networks (CNNs) have been used for galaxy morphology determination for quite some time now, a few challenges had persisted. 
+Gamma-ray bursts (GRBs) are essential astrophysical objects that can be used to understand the evolution of the early Universe since they can be detected up to a redshift ~ 20. However, the afterglows of GRBs dim extremely rapidly; hence, performing high−redhsift measurements poses challenges because even observations of optically bright GRBs are hindered by reduced telescope time and the limited number of follow-up programs for GRBs.
 
-Most previously developed CNNs provided broad morphological classifications; and there had been very limited work on estimating structural parameters of galaxies or associated uncertainties using CNN. Even popular non-machine learning tools like Galfit severely underestimate uncertainties by values as high as $\sim75\%$. 
+Hence, the requirement is to develop a system that can quickly identify whether a newly detected GRB event is observed at high redshift to allow follow-up observations in other wavelengths.
 
-The computation of full Bayesian posteriors for these structural parameters is crucial for drawing scientific inferences that account for uncertainty and are indispensable in the derivation of robust scaling relations or tests of theoretical models using morphology.
+Previously, supervised machine learning (ML) techniques were also used to identify high−z GRBs, utilizing only a single algorithm to train the model. However, they did not include the plateau emission phase while training their model. Hence, this framework includes X-ray plateaus and utilizes an ensemble method, combining multiple models within the SuperLearner framework to improve the prediction accuracy and power of the ML framework.
 
-One other challenge of using CNNs in astronomy, is the necessity to use fixed cutout sizes. Many practitioners choose to use a large cutout size for which "most galaxies" would remain in the frame. However, this means that typical cutouts contain other galaxies in the frame, often leading to less accurate results. Thus, this becomes a bottleneck when applying CNNs to galaxies over a wide magnitudes or redshifts.
 
-In order to address these above challenges, we developed GaMPEN.
+
+In order to address these above challenges, we developed the Redshift-Classifier (X-Ray).
 
 :::{admonition} Redshift-Classifier (X-Ray) Feature Summary:-
 :class: note
 
-1. GaMPEN estimates posterior distributions for (user-selected) structural parameters of galaxies.
+1. Redshift-Classifier (X-Ray) is a redshift-based GRB classifier to classify GRBs as high-redshift or low-redshift based on the user-defined redshift.
 
-    * GaMPEN's predicted posteriors are **extremely well-calibrated and accurate ($\lesssim 5\%$ derivation)**. They have been shown to be **upto $\sim60\%$ more accurate compared to uncertainties predicted by light-profile fitting algorithms.**
+    * It generates the scatter matrix plot for the input dataset.
+    
+    * It takes into account outlier removal (bad data points) using the M-estimator technique. It generates the histogram plot showing the weights assigned by the M-estimator. It also generates the scatter matrix plot for the filtered data, showing the data points that are outliers.
 
-    * GaMPEN takes into account both aleatoric & epistemic uncertainties.
+    * It also takes into account feature selection to select the best features using the feature selection method, Least Absolute Shrinkage and Selection Operator (LASSO).  It generates the plot showing the weights assigned by LASSO to select the best features based on the user-defined cutoff.
+      
+    * It also incorporates missing data imputation using the Multiple Imputation by Chained Equations (MICE) technique. It generates the distribution plot showing the missing data points (what number of data points are missing and for what features). It also generates the scatter matrix plot for the imputed data, showing the data points that are imputed using MICE. It also creates a histogram plot showing the imputed and the original data.
 
-    * GaMPEN incorporates the full covariance matrix in its loss function allowing it to achieve well-calibrated uncertainties for all output parameters.
+    * It further incorporates balancing the dataset using the Synthetic Minority Over-sampling Technique (SMOTE) technique. It saves the new synthetically generated dataset and creates a redshift distribution plot.
 
-2. GaMPEN automatically crops input images to an optimal size before determining their morphology.
-    *  Due to GaMPEN's design, this step requires no additional training step; except the training to predict structural parameters.
+2. It performs the ML training using the SuperLearner framework to combine multiple models at the same time. The SuperLearner allows us to see which algorithm works the best and lets us choose the algorithm based on our desired cutoff. It works on a nested 100-fold cross-validation technique.
+
+    * It generates the plots showing the weights assigned by SuperLearner to each algorithm to select the best algorithms based on user-defined cutoff.
+
+    * It generates the Receiver Operating Characteristic (ROC) curves showing the Area Under the Curve (AUC) for each algorithm and the combined SuperLearner model.
+      
+    * It also generates Precision/Recall and Accuracy plots.
 :::
+
 
  
 
-## What Parameters and Surveys can Redshift-Classifier (X-Ray) be Used for?
-
-The [publicly released GaMPEN models](./Public_data.md) can be easily used for the specific surveys (and magnitude/redshift ranges) on which the models were trained. For example, our [Hyper Suprime-Cam (HSC) models](./Public_data.md#hsc-wide-pdr2-galaxies) can be used to estimate the bulge-to-total light ratio, effective radius, and flux of HSC galaxies till $z < 0.75$.
-
-:::{note}
-However, GaMPEN models can be trained from scratch to determine **any combination of parametric and non-parametric structural parameters** (e.g., Sersic Index, Concentration, Asymmetry, etc.) for **any space or ground-based imaging survey**. 
-:::
-
-The only catch is that if your data or desired prediction-parameters are different from what we used to train the models, you might have to either fine-tune one of the publicly-released models or train a new model from scratch. We provide a couple of example scenarios below:-
-
-* **Predicting on HSC Data but with Fainter/Higher Redshift Galaxies or Data in a Different Band:** Start with a publicly-released model that is the closest to your dataset; then fine-tune this model using $\sim \mathcal{O} (10^3)$ galaxies with available ground-truth values.
-
-* **Predicting Structural Parameters on HSC Data Not Included in Our Public Release:** Start with our publicly-released models on real HSC data; discard the last few layers; re-train with ground-truth values for the new structural parameters you want to predict (e.g., Sérsic Index, Concentration, etc.) for  $\sim \mathcal{O} (10^3-10^4)$ galaxies.
-
-* **Predicting on Dark Energy Survey Data:** Start with our publicly-released models on real HSC data (as this will be better than starting from a random initialization); retrain with $\sim \mathcal{O} (10^3-10^4)$ real DES galaxies with ground-truth values.
-
-Don't hesitate to contact us if you want our help/advice in training a GaMPEN model for your survey/parameters! 
-
-## More Technical Details About Redshift-Classifier (X-Ray)
-
-### GaMPEN's Architecture
-
-![GaMPEN architecture](../assets/GaMPEN_architecture.png "Architecture of GaMPEN")
-
-GaMPEN's architecture consists of two separate entities:-
- * an upstream Spatial Transformer Network (STN) which enables GaMPEN to automatically crop galaxies to an optimal size;
- * a downstream Convolutional Neural Network (CNN) which enables GaMPEN to predict posterior distributions for various morphological parameters.
-
-GaMPEN's design is based on our previously successful classification CNN, [GaMorNet](https://gamornet.readthedocs.io/en/latest/), as well as as different variants of the Oxford Visual Geometry Group networks. We tried a variety of different architectures before finally converging on this design.
+Don't hesitate to contact us if you want our help/advice in using Redshift-Classifier (X-Ray)! 
 
 
 
 ## Publications
-The Redshift-Classifier(X-Ray) was initially introduced in [Dainotti et. al. 2025](https://arxiv.org/abs/2408.08763). Please cite this publication if you make use of the Redshift-Classifier (X-ray) Web app or some code herein.
+The Redshift-Classifier(X-Ray) was initially introduced in [Dainotti et al. 2025](https://arxiv.org/abs/2408.08763). Please cite this publication if you make use of the Redshift-Classifier (X-ray) Web app or some code herein.
 
 
 ## Attribution Info.
