@@ -11,7 +11,7 @@ Using_XRC
 # Home
 
 ```{attention}
-Note that although GaMPEN's current documentation is fairly substantive, we are still working on some parts of the documentation and some Tutorials. If you run into issues while trying to use GaMPEN, please contact us! We will be more than happy to help you!
+Note that although Redshift Classifier (X-Ray) current documentation is fairly substantive, we are still working on some parts of the documentation. If you run into issues while trying to use GaMPEN, please contact us! We will be more than happy to help you!
 ```
 
 
@@ -29,7 +29,7 @@ Once trained, it takes GaMPEN less than a millisecond to perform a single model 
 ## First Steps with GaMPEN
 0. For a quick blog-esque introduction to the most important features of Redshift-Classifier(X-Ray), please check out [About](./About_XRC.md).
 :::{tip}
-For a deep-dive, please refer to [Dainotti et. al. 2022](https://arxiv.org/abs/2408.08763).
+For a deep-dive, please refer to [Dainotti et. al. 2025](https://arxiv.org/abs/2408.08763).
 :::
 1. Follow the installation instructions and quick-start guide in [Getting Started](./Getting_Started.md).
 2. Review the [Usage](./Using_XRC.md) page to dive into the details about the various user-facing functions that our classifier provides and how to use them in a GUI environment.
