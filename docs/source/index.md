@@ -17,13 +17,11 @@ Note that although Redshift-Classifier (X-Ray) current documentation is fairly s
 
 ***
 
-The Galaxy Morphology Posterior Estimation Network (GaMPEN) is a Bayesian machine learning framework that can estimate robust posteriors (i.e., values + uncertainties) for structural parameters of galaxies. As the above image shows, GaMPEN also automatically crops input images to an optimal size before structural parameter estimation.
+Redshift-Classifier (X-ray) is a reliable ensemble machine learning framework developed to classify X-ray gamma-ray bursts (GRBs) as high-redshift or low-redshift based on the desired redshift cutoff (user-defined). We have used all the GRB light-curve (LC) phases in this framework, prompt, X-ray plateau, and X-ray afterglow, as features to train and test the models. However, our model is developed to use any set of features based on the availability and user's interest.
 
-GaMPEN's predicted posteriors are extremely well-calibrated ($<5\%$ deviation) and have been shown to be up to $\sim 60\%$ more accurate compared to the uncertainties predicted by many
-light-profile fitting algorithms. 
+This ML framework is developed to quickly identify if a GRB is a high-redshift or a low-redshift as soon as a new GRB is detected, which will help other facilities to have quick and more precise follow-up observations. In this ML framework, we have also incorporated ML techniques like outlier removal (removing bad data points), feature selection (to select the best features for redshift classification and to reduce the dimensionality), imputing missing data (to increase the sample size), and also balancing the data (to not have a biased ML trained model), to improve the performance of the ML model.
 
-Once trained, it takes GaMPEN less than a millisecond to perform a single model evaluation on a CPU. Thus, GaMPEN's posterior prediction capabilities are ready for large galaxy samples expected from upcoming large imaging surveys, such as Rubin-LSST, Euclid, and NGRST.
-
+Our ML model is more reliable because we use an ensemble model (combining many ML algorithms in a single framework using SuperLearner) rather than traditional methods that use a single ML algorithm. This further increases the prediction accuracy.
 
 
 ## First Steps with Redshift-Classifier (X-Ray)
