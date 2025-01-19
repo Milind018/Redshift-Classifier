@@ -3,7 +3,7 @@
 <!--[![Status of Build and Tests Workflow](https://github.com/aritraghsh09/GaMPEN/actions/workflows/main.yml/badge.svg)](https://github.com/aritraghsh09/GaMPEN/actions/workflows/main.yml)-->
 [![Documentation Status](https://readthedocs.org/projects/gampen/badge/?version=latest)](https://redshift-classifier.readthedocs.io/en/latest/)
 [![R Version 4.3](https://img.shields.io/badge/R-4.3-blue)](https://cran.r-project.org/)
-[![Python Version 3.8](https://img.shields.io/badge/Python-3.8-blue)](https://www.python.org/downloads/)
+[![Python Version 3.11](https://img.shields.io/badge/Python-3.8-blue)](https://www.python.org/downloads/)
 [![GitHub license](https://img.shields.io/github/license/Milind018/Redshift-Classifier)](https://github.com/Milind018/Redshift-Classifier/blob/main/LICENSE)
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Code DOI](https://zenodo.org/badge/299731956.svg)](https://zenodo.org/badge/latestdoi/299731956)
