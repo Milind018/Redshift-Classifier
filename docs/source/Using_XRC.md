@@ -33,7 +33,9 @@ Our Web-App allows users to customize the classification process based on their 
 ## Working of the Web-App
 
 1. First, the user has to select if they want to use the M-estimator or not to remove the outliers.
+
    a) If selected NO, outliers will not be removed.
+
    b) If selected YES, outliers will be removed.
 3. 
 
