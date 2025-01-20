@@ -1,6 +1,6 @@
 # Getting Started
 
-Redshift-Classifier(X-Ray) is written in R and Python and relies on the [Streamlit]([https://pytorch.org/](https://streamlit.io/)) for its GUI Weeb-app.
+Redshift-Classifier (X-Ray) is written in R and Python and relies on the [Streamlit]([https://pytorch.org/](https://streamlit.io/)) for its GUI Weeb-app.
 
 ## Installation
 
