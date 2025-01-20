@@ -40,7 +40,7 @@ The Redshift-Classifier(X-Ray) was initially introduced in the following publica
 ```
 # License
 
-Copyright 2025 Maria Giovanna Dainotti, Shubham Bhardwaj, Milind Sarkar & contributors
+Copyright 2025 Maria Giovanna Dainotti, Malgorzata Bogdan, Aditya Narendra, Agnieszka Pollo, Milind Sarkar, Shubham Bhardwaj, Joshua Ange, Christopher Cook & contributors
 
 Made available under a [GNU GPL
 v3.0](https://github.com/Milind018/Redshift-Classifier/blob/main/LICENSE)
@@ -48,10 +48,9 @@ license.
 
 # Contributors
 
-The Redshift-Classifier(X-ray) Ensemble Learning Framework and Web App was initially developed by Shubham Bhardwaj and Milind Sarkar.
+The Redshift-Classifier(X-ray) Ensemble Learning Framework and Web App was initially developed by Maria Giovanna Dainotti, Malgorzata Bogdan, Aditya Narendra, Agnieszka Pollo, Milind Sarkar, Shubham Bhardwaj, Joshua Ange, Christopher Cook & contributors.
 
-The initial documentation was developed by [Shubham Bhardwaj](https://github.com/QGravityGRGW) and [Milind Sarkar](https://milind018.github.io/).
-
+The initial documentation was developed by [Milind Sarkar](https://milind018.github.io/) and [Shubham Bhardwaj](https://github.com/QGravityGRGW).
 
 # Getting Help/Contributing
 
