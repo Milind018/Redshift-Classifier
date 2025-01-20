@@ -14,7 +14,7 @@ We have already provided all the datasets in the [data](https://github.com/Milin
 ```
 
 ```{Attention}
-To start using the Redshift-Classifier and for first-hand testing, the user only needs to use the `NEW-XRAY_DATA_RAW_w_errorbar_WITHOUT-M-estimator.csv` data file from the [data](https://github.com/Milind018/Redshift-Classifier/tree/main/data) folder.
+To start using the Redshift-Classifier and for first-hand testing, the user only needs to use the "NEW-XRAY_DATA_RAW_w_errorbar_WITHOUT-M-estimator.csv" data file from the [data](https://github.com/Milind018/Redshift-Classifier/tree/main/data) folder.
 ```
 
 ## Make Splits
