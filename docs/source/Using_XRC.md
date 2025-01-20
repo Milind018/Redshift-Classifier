@@ -24,6 +24,9 @@ Our Web-App allows users to customize the classification process based on their 
 * MICE: [here](https://medium.com/@brijesh_soni/topic-9-mice-or-multivariate-imputation-with-chain-equation-f8fd435ca91#:~:text=MICE%20stands%20for%20Multivariate%20Imputation,produce%20a%20final%20imputed%20dataset), [here](https://cran.r-project.org/web/packages/midastouch/midastouch.pdf), and [here](https://ui.adsabs.harvard.edu/abs/2022FrASS...936215G/abstract).
 * SMOTE: [here](https://arxiv.org/abs/1106.1813) and [here](https://github.com/dalpozz/unbalanced/tree/master/R).
 * SuperLearner: [here](https://cran.r-project.org/web/packages/SuperLearner/vignettes/Guide-to-SuperLearner.html#:~:text=SuperLearner%20is%20an%20algorithm%20that,using%20the%20test%20data%20performance.) and [here](https://cran.r-project.org/web/packages/SuperLearner/index.html).
+* Cross-validation: [here](https://towardsdatascience.com/cross-validation-in-machine-learning-72924a69872f) and [here](https://www.geeksforgeeks.org/cross-validation-machine-learning/).
+* Confusion Matrix: [here](https://changjunlee.com/blogs/posts/4_confusion_mat_and_roc), [here](https://www.digitalocean.com/community/tutorials/confusion-matrix-in-r), and [here](https://www.analyticsvidhya.com/blog/2020/09/precision-recall-machine-learning/).
+* AUC: [here](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc#:~:text=AUC%20stands%20for%20%22Area%20under,Area%20under%20the%20ROC%20Curve), [here](https://towardsdatascience.com/understanding-auc-roc-curve-68b2303cc9c5), and [here](https://lexjansen.com/nesug/nesug10/hl/hl07.pdf).
 
 
 ## Working of the Web-App
