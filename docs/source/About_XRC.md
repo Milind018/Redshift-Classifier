@@ -26,9 +26,11 @@ In order to address these above challenges, we developed the Redshift-Classifier
 
     * It further incorporates balancing the dataset using the Synthetic Minority Over-sampling Technique (SMOTE) technique. It saves the new synthetically generated dataset and creates a redshift distribution plot.
 
-2. It performs the ML training using the SuperLearner framework to combine multiple models at the same time. The SuperLearner allows us to see which algorithm works the best and lets us choose the algorithm based on our desired cutoff. It works on a nested 100-fold cross-validation technique.
+2. It performs the ML training using the SuperLearner framework to combine multiple models at the same time. The SuperLearner allows us to see which algorithm works the best and lets us choose the algorithm based on our desired cutoff. It works on a 100-nested loop 10-fold cross-validation technique.
 
     * It generates the plots showing the weights assigned by SuperLearner to each algorithm to select the best algorithms based on user-defined cutoff.
+  
+    * It creates the confusion matrix, a classification matrix used to evaluate the results and the classifier's performance.
 
     * It generates the Receiver Operating Characteristic (ROC) curves showing the Area Under the Curve (AUC) for each algorithm and the combined SuperLearner model.
       
