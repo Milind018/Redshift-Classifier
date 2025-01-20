@@ -21,8 +21,9 @@ Our Web-App allows users to customize the classification process based on their 
 
 ## Working of the Web-App
 
-1. Removing outliers or not by using the M-estimator. References to read about M-estimator: [Blog](https://www.statisticshowto.com/m-estimator/), [Paper](https://ui.adsabs.harvard.edu/abs/2022FrASS...936215G/abstract).
-2. If
+1. Removing outliers or not by using the M-estimator. References to read about M-estimator: [a](https://www.statisticshowto.com/m-estimator/), [b](https://ui.adsabs.harvard.edu/abs/2022FrASS...936215G/abstract).
+   a) If chosen NO
+2. 
 
 ```{eval-rst}  
 :py:mod:`ggt.data.make_splits`
