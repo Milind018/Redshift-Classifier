@@ -27,6 +27,7 @@ Our Web-App allows users to customize the classification process based on their 
 * Cross-validation: [here](https://towardsdatascience.com/cross-validation-in-machine-learning-72924a69872f) and [here](https://www.geeksforgeeks.org/cross-validation-machine-learning/).
 * Confusion Matrix: [here](https://changjunlee.com/blogs/posts/4_confusion_mat_and_roc), [here](https://www.digitalocean.com/community/tutorials/confusion-matrix-in-r), and [here](https://www.analyticsvidhya.com/blog/2020/09/precision-recall-machine-learning/).
 * AUC: [here](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc#:~:text=AUC%20stands%20for%20%22Area%20under,Area%20under%20the%20ROC%20Curve), [here](https://towardsdatascience.com/understanding-auc-roc-curve-68b2303cc9c5), and [here](https://lexjansen.com/nesug/nesug10/hl/hl07.pdf).
+* ROC: [here](https://changjunlee.com/blogs/posts/4_confusion_mat_and_roc), [here](https://www.digitalocean.com/community/tutorials/plot-roc-curve-r-programming), [here](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc#:~:text=AUC%20stands%20for%20%22Area%20under,Area%20under%20the%20ROC%20Curve), [here](https://search.r-project.org/CRAN/refmans/AUC/html/plot.AUC.html), and [here](https://lexjansen.com/nesug/nesug10/hl/hl07.pdf).
 
 
 ## Working of the Web-App
