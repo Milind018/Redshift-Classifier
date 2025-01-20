@@ -34,11 +34,11 @@ Our Web-App allows users to customize the classification process based on their 
 
 1. First, the user has to select if they want to use the M-estimator or not to remove the outliers.
 
-   a) If selected `No`, outliers will not be removed.
+   a) If selected ``No``, outliers will not be removed.
 
-   b) If selected `Yes`, outliers will be removed. Then, the user has to select the weight cutoff to remove the outliers.
+   b) If selected ``Yes``, outliers will be removed. Then, the user has to select the weight cutoff to remove the outliers.
 
-2. Then,
+2. Then, the user has to select if they want to impute the missing variables or not
 
 ```{eval-rst}  
 :py:mod:`ggt.data.make_splits`
