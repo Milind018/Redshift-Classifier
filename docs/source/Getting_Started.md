@@ -11,22 +11,22 @@ To set up the project and ensure all dependencies are installed, ensure that you
 * **Python** (version >= 3.9)
 * **Git** to clone the repository
 
-Then locally clone the project repository from GitHub:
+1. Locally clone the project repository from GitHub:
 ```
 git clone https://github.com/Milind018/Redshift-Classifier.git 
 ```
 
-To install the necessary R packages, open and run `Package_install.Rmd` in RStudio. Alternatively, use the `install.packages` command with `packages.txt` and `https://cran.r-project.org` as the base URL of repositories.
+2. Install the necessary R packages, open and run `Package_install.Rmd` in RStudio. Alternatively, use the `install.packages` command with `packages.txt` and `https://cran.r-project.org` as the base URL of repositories.
 
 This project also requires the Python libraries **Streamlit**, **Pandas**, and **Pillow**, which can be installed with `pip install -r requirements.txt`
 
 > You may also want to customize the output directory for plots and files `PLOTaddr` in the downloaded R scripts and specify parallelization settings if desired.
 
-Simply launch the Python application to run the R scripts through Streamlit:
+3. Simply launch the Python application to run the R scripts through Streamlit:
 ```
 streamlit run app.py
 ```
-Then, you may specify classification settings and choose the dataset .csv to upload.
+4. Specify classification settings and choose the dataset (in .csv format) to upload.
 
 
 ## Installation
