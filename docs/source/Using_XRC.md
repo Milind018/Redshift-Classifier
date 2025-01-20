@@ -5,6 +5,8 @@ On this page, we go over the most important user-facing functions that the Redsh
 As discussed in [Getting Started](./Getting_Started.md), copy the files and run the app.py file in an IDE (preferably, VSCode) and write the following in the terminal: 
 ```streamlit run app.py```
 
+Below is the illustration of our web app interface showing how it works.
+
 ![Introductory Image](./../../images/Classifier_home.png)
 
 ## Make Splits
