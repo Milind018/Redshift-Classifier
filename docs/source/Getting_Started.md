@@ -1,5 +1,5 @@
 ```{attention}
-Note that all the .Rmd and .R files in the primary and ancillary subfolders of the source folder must be copied into the working directory where the app.py file is present!!
+Note that all the .Rmd and .R files in the primary and ancillary subfolders of the scripts folder must be copied into the working directory where the app.py file is present!!
 ```
 
 # Getting Started
