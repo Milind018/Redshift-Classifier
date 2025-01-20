@@ -4,7 +4,7 @@ Redshift-Classifier(X-Ray) is written in R and Python and relies on the [Streaml
 
 ## Installation
 
-This repository includes an ensemble machine learning classification method for GRB redshifts from X-ray data. It allows for the inclusion of the M-estimator with a custom weight cutoff for outliers, Multivariate Imputation by Chained Equations (MICE), Synthetic Minority Over-sampling Technique (SMOTE) balancing, and a chosen redshift cutoff between high- and low-z GRBs, in accordance with the procedure described in [https://arxiv.org/abs/2408.08763](https://arxiv.org/abs/2408.08763). The app can be run locally with custom settings based on users' specific requirements.
+This repository includes an ensemble machine-learning (ML) classification method for GRB classification based on redshift using X-ray data. It allows for the inclusion of the M-estimator with custom weight cutoff to remove outliers, Multivariate Imputation by Chained Equations (MICE) to impute missing variables, Synthetic Minority Over-sampling Technique (SMOTE) balancing to balance the dataset, and a chosen redshift cutoff to define high- and low-redshift GRBs, in accordance with the procedure described in [https://arxiv.org/abs/2408.08763](https://arxiv.org/abs/2408.08763). The app can be run locally with custom settings based on users' specific requirements.
 
 To set up the project and ensure all dependencies are installed, ensure that you have access to
 * **R** (version >= 4.3.2) with RStudio
@@ -20,13 +20,13 @@ To install the necessary R packages, open and run `Package_install.Rmd` in RStud
 
 This project also requires the Python libraries **Streamlit**, **Pandas**, and **Pillow**, which can be installed with `pip install -r requirements.txt`
 
-> You may also want to customize the output directory for plots and files `PLOTaddr` in the downloaded R scripts and specify parallelization settings, if desired.
+> You may also want to customize the output directory for plots and files `PLOTaddr` in the downloaded R scripts and specify parallelization settings if desired.
 
 Simply launch the Python application to run the R scripts through Streamlit:
 ```
 streamlit run app.py
 ```
-Then you may specify classification settings and choose the dataset .csv to upload.
+Then, you may specify classification settings and choose the dataset .csv to upload.
 
 
 ## Installation
