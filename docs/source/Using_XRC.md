@@ -21,7 +21,7 @@ Our Web-App allows users to customize the classification process based on their 
 
 ## Working of the Web-App
 
-1. Removing outliers or not by using the M-estimator. References to read about M-estimator: [https://www.statisticshowto.com/m-estimator/](https://www.statisticshowto.com/m-estimator/), [https://ui.adsabs.harvard.edu/abs/2022FrASS...936215G/abstract](https://ui.adsabs.harvard.edu/abs/2022FrASS...936215G/abstract).
+1. Removing outliers or not by using the M-estimator. References to read about M-estimator are [here](https://www.statisticshowto.com/m-estimator/) and [here](https://ui.adsabs.harvard.edu/abs/2022FrASS...936215G/abstract).
    a) If chosen NO
 2. 
 
