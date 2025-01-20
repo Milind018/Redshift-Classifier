@@ -14,7 +14,9 @@ Below is the illustration of our web app interface showing how it works.
 To start using the Redshift-Classifier and for first-hand testing, the user only needs to use the ``NEW-XRAY_DATA_RAW_w_errorbar_WITHOUT-M-estimator.csv`` data file from the [data](https://github.com/Milind018/Redshift-Classifier/tree/main/data) folder. However, we have already provided all the datasets in the [data](https://github.com/Milind018/Redshift-Classifier/tree/main/data) folder that we have used in this Redshift-Classifier, which user can also use to test each code separately in their local machine.
 ```
 
-## Make Splits
+Our Web-App allows users to customize the classification process based on their specific requirements. Users can select whether they want to remove outliers or not by using the M-estimator based on their desired threshold. Users can also opt to impute the missing variables using MICE imputation and data balancing using SMOTE. Additionally, user can select their preferred redshift cutoff for a flexible GRB redshift classification.
+
+## Working of the Web-App
 
 ```{eval-rst}  
 :py:mod:`ggt.data.make_splits`
