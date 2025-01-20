@@ -10,7 +10,7 @@ Below is the illustration of our web app interface showing how it works.
 ![Introductory Image](./../../images/Classifier_home.png)
 
 ```{Attention}
-We have already provided all the datasets in the [data](./../../data) folder that we have used in this Redshift-Classifier. 
+We have already provided all the datasets in the [data](https://github.com/Milind018/Redshift-Classifier/tree/main/data) folder that we have used in this Redshift-Classifier. 
 ```
 
 ## Make Splits
