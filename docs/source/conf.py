@@ -18,8 +18,8 @@
 # -- Project information -----------------------------------------------------
 
 project = "Redshift-Classifier(X-Ray)"
-copyright = "2025, Maria Giovanna Dainotti, Shubham Bhardwaj, Milind Sarkar"
-author = "Maria Giovanna Dainotti, Shubham Bhardwaj, Milind Sarkar"
+copyright = "2025, Maria Giovanna Dainotti, Malgorzata Bogdan, Aditya Narendra, Agnieszka Pollo, Shubham Bhardwaj, Milind Sarkar, Joshua Ange, Christopher Cook & contributors"
+author = "Maria Giovanna Dainotti, Malgorzata Bogdan, Aditya Narendra, Agnieszka Pollo, Shubham Bhardwaj, Milind Sarkar, Joshua Ange, Christopher Cook & contributors"
 
 # The full version, including alpha/beta/rc tags
 release = "1.0.0"
