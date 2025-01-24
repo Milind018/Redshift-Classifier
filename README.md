@@ -50,7 +50,7 @@ license.
 
 The Redshift-Classifier(X-ray) Ensemble Learning Framework and Web App was initially developed by Maria Giovanna Dainotti, Malgorzata Bogdan, Aditya Narendra, Agnieszka Pollo, Shubham Bhardwaj, Milind Sarkar, Joshua Ange, Christopher Cook & contributors.
 
-The initial documentation was developed by [Shubham Bhardwaj](https://github.com/QGravityGRGW) and [Milind Sarkar](https://milind018.github.io/).
+The initial documentation was developed by [Shubham Bhardwaj](https://github.com/QGravityGRGW), [Milind Sarkar](https://milind018.github.io/), and Joshua Ange.
 
 # Getting Help/Contributing
 
